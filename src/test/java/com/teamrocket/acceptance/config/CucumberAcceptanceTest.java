@@ -12,8 +12,8 @@ import org.junit.platform.suite.api.Suite;
 @ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(
         key = Constants.GLUE_PROPERTY_NAME,
-        value = "com.teamrocket.Template.acceptance," +
-                "com.teamrocket.Template.acceptance.config"
+        value = "com.teamrocket.acceptance," +
+                "com.teamrocket.acceptance.config"
 )
 @ConfigurationParameter(key = Constants.PLUGIN_PUBLISH_QUIET_PROPERTY_NAME, value = "true")
 public class CucumberAcceptanceTest {
