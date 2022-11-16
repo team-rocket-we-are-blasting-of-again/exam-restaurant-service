@@ -1,7 +1,7 @@
-package com.teamrocket.Template.control;
+package com.teamrocket.control;
 
-import com.teamrocket.Template.service.TemplateService;
-import com.teamrocket.Template.dto.TemplateDTO;
+import com.teamrocket.service.TemplateService;
+import com.teamrocket.dto.TemplateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

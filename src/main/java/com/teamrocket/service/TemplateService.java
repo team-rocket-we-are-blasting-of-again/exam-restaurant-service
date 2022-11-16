@@ -1,8 +1,7 @@
-package com.teamrocket.Template.service;
+package com.teamrocket.service;
 
-import com.teamrocket.Template.dto.TemplateDTO;
+import com.teamrocket.dto.TemplateDTO;
 import org.springframework.stereotype.Service;
-import com.teamrocket.Template.control.TempController;
 
 @Service
 public class TemplateService {

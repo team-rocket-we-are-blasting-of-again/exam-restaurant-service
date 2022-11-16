@@ -1,4 +1,4 @@
-package com.teamrocket.Template.acceptance.config;
+package com.teamrocket.acceptance.config;
 
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

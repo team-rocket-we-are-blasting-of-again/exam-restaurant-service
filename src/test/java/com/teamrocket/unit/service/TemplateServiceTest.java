@@ -1,6 +1,7 @@
-package com.teamrocket.Template.unit.service;
+package com.teamrocket.unit.service;
 
-import com.teamrocket.Template.service.TemplateService;
+import com.teamrocket.service.TemplateService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +17,7 @@ class TemplateServiceTest {
 
     @Test
     void helloTest() {
-        assertEquals(templateService.hello("Me").getMsg(), "Hello, " + who + "!");
-        assertEquals(templateService.hello("Me").getId(), 99);
+        Assertions.assertEquals(templateService.hello("Me").getMsg(), "Hello, " + who + "!");
+        Assertions.assertEquals(templateService.hello("Me").getId(), 99);
     }
 }

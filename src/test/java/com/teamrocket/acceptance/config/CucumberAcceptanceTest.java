@@ -1,4 +1,4 @@
-package com.teamrocket.Template.acceptance.config;
+package com.teamrocket.acceptance.config;
 
 import io.cucumber.junit.platform.engine.Constants;
 import org.junit.platform.suite.api.ConfigurationParameter;

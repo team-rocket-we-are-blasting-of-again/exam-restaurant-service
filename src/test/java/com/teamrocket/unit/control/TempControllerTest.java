@@ -1,8 +1,8 @@
-package com.teamrocket.Template.unit.control;
+package com.teamrocket.unit.control;
 
-import com.teamrocket.Template.control.TempController;
-import com.teamrocket.Template.service.TemplateService;
-import com.teamrocket.Template.dto.TemplateDTO;
+import com.teamrocket.control.TempController;
+import com.teamrocket.service.TemplateService;
+import com.teamrocket.dto.TemplateDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

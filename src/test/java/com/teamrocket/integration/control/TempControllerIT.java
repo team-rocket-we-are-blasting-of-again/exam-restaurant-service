@@ -1,8 +1,8 @@
-package com.teamrocket.Template.integration.control;
+package com.teamrocket.integration.control;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamrocket.Template.dto.TemplateDTO;
+import com.teamrocket.dto.TemplateDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

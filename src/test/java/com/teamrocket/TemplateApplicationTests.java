@@ -1,4 +1,4 @@
-package com.teamrocket.Template;
+package com.teamrocket;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

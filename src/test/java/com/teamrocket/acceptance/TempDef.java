@@ -1,4 +1,4 @@
-package com.teamrocket.Template.acceptance;
+package com.teamrocket.acceptance;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
