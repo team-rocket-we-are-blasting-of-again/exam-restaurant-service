@@ -33,7 +33,8 @@ public class RestaurantService implements IRestaurantService {
             restaurant.setMenu(items);
             return restaurantRepo.save(restaurant).getMenu();
         } catch (NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", request.getRestaurantId()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("Restaurant with id %s does not exist", request.getRestaurantId()));
         }
     }
 
@@ -69,8 +70,7 @@ public class RestaurantService implements IRestaurantService {
             });
             restaurant.getMenu().addAll(request.getItems());
             return restaurantRepo.save(restaurant).getMenu();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", request.getRestaurantId()));
         }
     }
@@ -95,15 +95,18 @@ public class RestaurantService implements IRestaurantService {
             });
             restaurant.getMenu().removeAll(toBeRemoved);
             return restaurantRepo.save(restaurant).getMenu();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", request.getRestaurantId()));
         }
     }
 
     @Override
     public Collection<Item> getMenu(int id) {
-        return restaurantRepo.findByIdWithMenu(id).getMenu();
+        try {
+            return restaurantRepo.findByIdWithMenu(id).getMenu();
+        } catch (NullPointerException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", id));
+        }
     }
 
     @Override
@@ -112,7 +115,7 @@ public class RestaurantService implements IRestaurantService {
         if (rowsUpdated > 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
-        if (rowsUpdated > 1) {
+        if (rowsUpdated < 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
 
         }
@@ -125,7 +128,7 @@ public class RestaurantService implements IRestaurantService {
         if (rowsUpdated > 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
-        if (rowsUpdated > 1) {
+        if (rowsUpdated < 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
