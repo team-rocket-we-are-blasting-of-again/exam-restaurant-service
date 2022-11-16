@@ -6,6 +6,7 @@ import com.teamrocket.entity.Restaurant;
 import com.teamrocket.repository.RestaurantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -98,5 +99,35 @@ public class RestaurantService implements IRestaurantService {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", request.getRestaurantId()));
         }
+    }
+
+    @Override
+    public Collection<Item> getMenu(int id) {
+        return restaurantRepo.findByIdWithMenu(id).getMenu();
+    }
+
+    @Override
+    public ResponseEntity<String> openRestaurant(int id) {
+        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, true);
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
+        }
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to OPEN");
+    }
+
+    @Override
+    public ResponseEntity<String> closeRestaurant(int id) {
+        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, false);
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
+        }
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
     }
 }

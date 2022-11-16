@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -31,6 +32,8 @@ public class Restaurant {
     @OneToMany(targetEntity = Item.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
     private Set<Item> menu = new HashSet<>();
+    @Column(columnDefinition = "boolean default false")
+    private boolean open;
 
     public Restaurant(String name) {
         this.name = name;
