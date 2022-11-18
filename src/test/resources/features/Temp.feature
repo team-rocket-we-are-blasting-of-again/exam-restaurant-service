@@ -1,4 +1,4 @@
-Feature: can play a bowling game
+Feature: Can create restaurant
 
   Scenario Outline:
     Given a bowling game
