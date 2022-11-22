@@ -23,4 +23,8 @@ public interface IRestaurantService {
 
     ResponseEntity<String> openRestaurant(int id);
     ResponseEntity<String> closeRestaurant(int id);
+
+    ResponseEntity archiveRestaurant(int id);
+
+
 }

@@ -18,6 +18,10 @@ public interface RestaurantRepo extends JpaRepository<Restaurant, Integer> {
 
     @Modifying
     @Query("UPDATE Restaurant r SET r.open= ?2 WHERE r.id = ?1")
-    int setOpenCLoseRestaurant(int restaurantId, boolean open);
+    int setOpenCloseRestaurant(int restaurantId, boolean open);
+
+    @Modifying
+    @Query("UPDATE Restaurant r SET r.archived= ?2 WHERE r.id = ?1")
+    int setOpenArchiveRestaurant(int restaurantId, boolean archive);
 
 }

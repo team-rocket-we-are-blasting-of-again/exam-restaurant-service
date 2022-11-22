@@ -111,7 +111,7 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public ResponseEntity<String> openRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, true);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, true);
         if (rowsUpdated > 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
@@ -124,13 +124,25 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public ResponseEntity<String> closeRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, false);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, false);
         if (rowsUpdated > 1) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
         }
         if (rowsUpdated < 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
+    }
+
+    @Override
+    public ResponseEntity archiveRestaurant(int id) {
+        int rowsUpdated = restaurantRepo.setOpenArchiveRestaurant(id, true);
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
+        }
+        if (rowsUpdated < 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to ARCHIVED");
     }
 }

@@ -50,8 +50,8 @@ class RestaurantServiceTest {
 
         when(restaurantRepo.save(any())).thenReturn(restaurant);
         when(restaurantRepo.findByIdWithMenu(restaurantId)).thenReturn(restaurant);
-        when(restaurantRepo.setOpenCLoseRestaurant(restaurantId, true)).thenReturn(1);
-        when(restaurantRepo.setOpenCLoseRestaurant(restaurantId, false)).thenReturn(1);
+        when(restaurantRepo.setOpenCloseRestaurant(restaurantId, true)).thenReturn(1);
+        when(restaurantRepo.setOpenCloseRestaurant(restaurantId, false)).thenReturn(1);
     }
 
     @AfterEach

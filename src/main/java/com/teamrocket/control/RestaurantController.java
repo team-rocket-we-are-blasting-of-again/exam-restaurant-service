@@ -23,7 +23,7 @@ public class RestaurantController {
         return restaurantService.createNewRestaurant(name);
     }
 
-    @PostMapping("/menu")
+    @PatchMapping("/menu")
     public Collection<MenuItem> addNewMenu(@RequestBody ItemsRequest request) {
         return restaurantService.addNewMenu(request);
     }
@@ -56,5 +56,10 @@ public class RestaurantController {
     @PatchMapping("/close")
     public ResponseEntity<String>  closeRestaurant(@RequestParam("id") int id) {
         return restaurantService.closeRestaurant(id);
+    }
+
+    @PatchMapping("/archive")
+    public ResponseEntity<String>  archiveRestaurant(@RequestParam("id") int id) {
+        return restaurantService.archiveRestaurant(id);
     }
 }

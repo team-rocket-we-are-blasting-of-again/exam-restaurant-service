@@ -33,6 +33,7 @@ public class Restaurant {
     private Set<MenuItem> menu = new HashSet<>();
     @Column(columnDefinition = "boolean default false")
     private boolean open;
+    private boolean archived;
 
     public Restaurant(String name) {
         this.name = name;
