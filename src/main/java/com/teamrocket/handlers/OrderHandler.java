@@ -26,6 +26,12 @@ public class OrderHandler implements ExternalTaskHandler {
     @Override
     public void execute(ExternalTask externalTask, ExternalTaskService externalTaskService) {
         System.out.println("pendingOrder fired!");
+        externalTask.getAllVariables().forEach((t, v)->
+                {
+                    System.out.println(t.toString());
+                    System.out.println(v.toString());
+                }
+        );
         externalTaskService.complete(externalTask, externalTask.getAllVariables());
     }
 }

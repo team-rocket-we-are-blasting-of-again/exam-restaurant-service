@@ -1,7 +1,7 @@
 package com.teamrocket.service;
 
 import com.teamrocket.dto.ItemsRequest;
-import com.teamrocket.entity.Item;
+import com.teamrocket.entity.MenuItem;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.repository.RestaurantRepo;
 import org.junit.jupiter.api.AfterEach;
@@ -36,15 +36,15 @@ class RestaurantServiceTest {
     private Restaurant restaurant;
     private String restaurantName;
     private int restaurantId;
-    private Set<Item> menu;
+    private Set<MenuItem> menu;
 
     @BeforeEach
     void setUp() {
         restaurantName = "Di Amora";
         restaurantId = 666;
         menu = new HashSet<>();
-        menu.add(new Item(null, "Cheese-Burger", "Burger", "juicy with onion rings", 110.0));
-        menu.add(new Item(null, "Bacon-Burger", "Burger", "juicy with onion rings", 110.0));
+        menu.add(new MenuItem(null, "Cheese-Burger", "Burger", "juicy with onion rings", 110.0));
+        menu.add(new MenuItem(null, "Bacon-Burger", "Burger", "juicy with onion rings", 110.0));
         restaurant = new Restaurant(restaurantName);
         restaurant.setId(restaurantId);
 
@@ -109,8 +109,8 @@ class RestaurantServiceTest {
 
     @Test
     void givenNullItemIdWhenEditItemThenThrowsResponseStatusException() {
-        Set<Item> items = new HashSet<>();
-        items.add(new Item());
+        Set<MenuItem> items = new HashSet<>();
+        items.add(new MenuItem());
         ItemsRequest request = new ItemsRequest(restaurantId, items);
         assertThrows(ResponseStatusException.class, () -> {
             restaurantService.editItems(request);
@@ -132,8 +132,8 @@ class RestaurantServiceTest {
 
     @Test
     void givenNullItemIdWhenDeleteItemThenThrowsResponseStatusException() {
-        Set<Item> items = new HashSet<>();
-        items.add(new Item());
+        Set<MenuItem> items = new HashSet<>();
+        items.add(new MenuItem());
         ItemsRequest request = new ItemsRequest(restaurantId, items);
         assertThrows(ResponseStatusException.class, () -> {
             restaurantService.deleteItems(request);

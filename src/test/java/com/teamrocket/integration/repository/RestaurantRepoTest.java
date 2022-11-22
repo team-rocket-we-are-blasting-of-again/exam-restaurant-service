@@ -1,6 +1,6 @@
 package com.teamrocket.integration.repository;
 
-import com.teamrocket.entity.Item;
+import com.teamrocket.entity.MenuItem;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.repository.RestaurantRepo;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,9 @@ public class RestaurantRepoTest {
 
     @Test
     void findByIdWithMenuTest() {
-        Set<Item> items = new HashSet<>();
-        items.add(new Item(null, "Cheese-Burger", "Burger", "juicy with onion rings", 110.0));
-        items.add(new Item(null, "Bacon-Burger", "Burger", "juicy with onion rings", 110.0));
+        Set<MenuItem> items = new HashSet<>();
+        items.add(new MenuItem(null, "Cheese-Burger", "Burger", "juicy with onion rings", 110.0));
+        items.add(new MenuItem(null, "Bacon-Burger", "Burger", "juicy with onion rings", 110.0));
         Restaurant r = new Restaurant("MAM");
         r.setMenu(items);
         r = restaurantRepo.save(r);

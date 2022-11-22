@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Item {
+public class MenuItem {
     private static final long serialVersionUID = 1L;
 
     @Id

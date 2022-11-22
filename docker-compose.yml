@@ -11,3 +11,11 @@ services:
       - POSTGRES_DB=restaurants
     ports:
       - '6969:5432'
+  redis_db:
+    image: redis:6.2-alpine
+    restart: always
+    container_name: exam_restaurant_service_redis
+    environment:
+      - REDIS_PASSWORD=Qwerty!234
+    ports:
+      - '6380:6379'

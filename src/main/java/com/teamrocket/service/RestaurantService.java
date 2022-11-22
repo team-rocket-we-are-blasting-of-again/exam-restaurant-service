@@ -1,7 +1,7 @@
 package com.teamrocket.service;
 
 import com.teamrocket.dto.ItemsRequest;
-import com.teamrocket.entity.Item;
+import com.teamrocket.entity.MenuItem;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.repository.RestaurantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,11 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public Set<Item> addNewMenu(ItemsRequest request) {
+    public Set<MenuItem> addNewMenu(ItemsRequest request) {
 
         try {
             Restaurant restaurant = restaurantRepo.findByIdWithMenu(request.getRestaurantId());
-            Set<Item> items = new HashSet<>();
+            Set<MenuItem> items = new HashSet<>();
             items.addAll(request.getItems());
             restaurant.setMenu(items);
             return restaurantRepo.save(restaurant).getMenu();
@@ -39,7 +39,7 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public Set<Item> addNewItems(ItemsRequest request) {
+    public Set<MenuItem> addNewItems(ItemsRequest request) {
         try {
             Restaurant restaurant = restaurantRepo.findByIdWithMenu(request.getRestaurantId());
             restaurant.getMenu().addAll(request.getItems());
@@ -50,7 +50,7 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public Collection<Item> editItems(ItemsRequest request) {
+    public Collection<MenuItem> editItems(ItemsRequest request) {
 
         Set<Integer> itemIds = new HashSet<>();
         request.getItems().forEach(i -> {
@@ -76,7 +76,7 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public Collection<Item> deleteItems(ItemsRequest request) {
+    public Collection<MenuItem> deleteItems(ItemsRequest request) {
         Set<Integer> itemIds = new HashSet<>();
         request.getItems().forEach(i -> {
             if (i.getId() == null) {
@@ -85,7 +85,7 @@ public class RestaurantService implements IRestaurantService {
                 itemIds.add(i.getId());
             }
         });
-        List<Item> toBeRemoved = new ArrayList<>();
+        List<MenuItem> toBeRemoved = new ArrayList<>();
         try {
             Restaurant restaurant = restaurantRepo.findByIdWithMenu(request.getRestaurantId());
             restaurant.getMenu().forEach(i -> {
@@ -101,7 +101,7 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public Collection<Item> getMenu(int id) {
+    public Collection<MenuItem> getMenu(int id) {
         try {
             return restaurantRepo.findByIdWithMenu(id).getMenu();
         } catch (NullPointerException e) {

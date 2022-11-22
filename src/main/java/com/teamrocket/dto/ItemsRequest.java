@@ -1,6 +1,6 @@
 package com.teamrocket.dto;
 
-import com.teamrocket.entity.Item;
+import com.teamrocket.entity.MenuItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +15,5 @@ import java.util.HashSet;
 @Setter
 public class ItemsRequest {
     private int restaurantId;
-    private Collection<Item> items = new HashSet();
+    private Collection<MenuItem> items = new HashSet();
 }

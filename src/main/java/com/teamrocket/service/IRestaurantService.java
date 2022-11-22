@@ -1,7 +1,7 @@
 package com.teamrocket.service;
 
 import com.teamrocket.dto.ItemsRequest;
-import com.teamrocket.entity.Item;
+import com.teamrocket.entity.MenuItem;
 import com.teamrocket.entity.Restaurant;
 import org.springframework.http.ResponseEntity;
 
@@ -11,15 +11,15 @@ import java.util.Set;
 public interface IRestaurantService {
     Restaurant createNewRestaurant(String name);
 
-    Set<Item> addNewMenu(ItemsRequest request);
+    Set<MenuItem> addNewMenu(ItemsRequest request);
 
-    Set<Item> addNewItems(ItemsRequest request);
+    Set<MenuItem> addNewItems(ItemsRequest request);
 
-    Collection<Item> editItems(ItemsRequest request);
+    Collection<MenuItem> editItems(ItemsRequest request);
 
-    Collection<Item> deleteItems(ItemsRequest request);
+    Collection<MenuItem> deleteItems(ItemsRequest request);
 
-    Collection<Item> getMenu(int id);
+    Collection<MenuItem> getMenu(int id);
 
     ResponseEntity<String> openRestaurant(int id);
     ResponseEntity<String> closeRestaurant(int id);
