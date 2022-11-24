@@ -1,5 +1,6 @@
 package com.teamrocket.repository;
 
+import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,5 +20,6 @@ public interface RestaurantRepo extends JpaRepository<Restaurant, Integer> {
     @Modifying
     @Query("UPDATE Restaurant r SET r.open= ?2 WHERE r.id = ?1")
     int setOpenCLoseRestaurant(int restaurantId, boolean open);
+
 
 }

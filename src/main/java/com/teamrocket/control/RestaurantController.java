@@ -58,6 +58,20 @@ public class RestaurantController {
         return restaurantService.getMenu(id);
     }
 
+
+    @GetMapping("/menuids")
+    public Collection<Integer> getMenuIds(@RequestParam("id") int id) {
+
+
+        Collection<Item> items = restaurantService.getMenu(id);
+        List<Integer> ids = new ArrayList<>();
+        for (Item item: items) {
+            ids.add(item.getId());
+        }
+        return ids;
+    }
+
+
     @PatchMapping("/open")
     public ResponseEntity<String> openRestaurant(@RequestParam("id") int id) {
         return restaurantService.openRestaurant(id);

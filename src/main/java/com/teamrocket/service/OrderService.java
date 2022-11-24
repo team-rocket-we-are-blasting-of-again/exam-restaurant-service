@@ -7,6 +7,7 @@ import com.teamrocket.model.OrderItem;
 import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
+import com.teamrocket.repository.RestaurantRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class OrderService implements IOrderService {
@@ -34,6 +33,9 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private ItemRepo itemRepo;
+
+    @Autowired
+    private RestaurantRepo restaurantRepo;
 
     @Autowired
     private KafkaTemplate kafkaTemplate;
@@ -55,7 +57,6 @@ public class OrderService implements IOrderService {
         sendNewOrderToRestaurant(order);
 
     }
-
 
 
     @Override
@@ -91,5 +92,23 @@ public class OrderService implements IOrderService {
             kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), order);
             logger.info("Order with system_order id: {} cancelled", order.getId());
         }
+    }
+
+    public void populate_order_items() {
+        Random random = new Random();
+        //for each restaurant
+        for (int i = 1; i < 101; i++) {
+
+            //find all the orders of that restaurant
+            List<Integer> orders.orderRepo.getOrderIdsByRestaurant(i)
+
+            int itemsPerOrders = random.nextInt(200);
+            Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu()
+
+            for (int j = 0; j < ordersPerRestaurant; j++) {
+
+            }
+        }
+
     }
 }
