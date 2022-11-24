@@ -58,7 +58,6 @@ public class OrderService implements IOrderService {
 
     }
 
-
     @Override
     public void sendOrderWithWebSocket(RestaurantOrder order) {
 
@@ -94,36 +93,35 @@ public class OrderService implements IOrderService {
         }
     }
 
-    public void populate_order_items() {
-        Random random = new Random();
-        //for each restaurant
-        for (int i = 1; i < 101; i++) {
-
-            //find all the orders of that restaurant
-            List<Order> orders = orderRepo.findAllByRestaurantId(i);
-
-            for (Order order : orders) {
-
-                //how many items for order
-                int itemsPerOrder = random.nextInt(8);
-                Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu();
-
-                Map<Item, Integer> orderItems = new HashMap<>();
-
-                for (int j = 0; j < itemsPerOrders; j++) {
-                    int quantity = int itemsPerOrders = random.nextInt(8);
-                    int index = random.nextInt(menu.size());
-                    orderItems.put(menu.stream().toList().get(index), quantity);
-
-                }
-
-                order.setOrderItems(orderItems);
-                orderRepo.save(order);
-
-
-            }
-
-        }
-
-    }
+//
+//    public void populate_order_items() {
+//        Random random = new Random();
+//        //for each restaurant
+//        for (int i = 1; i < 101; i++) {
+//            System.out.println("Restaurant : " + i);
+//
+//            //find all  orders of that restaurant
+//            List<Order> orders = orderRepo.findAllByRestaurantId(i);
+//
+//            for (Order order : orders) {
+//                System.out.println("\t\t order " + order.getId());
+//                //how many items for order
+//                int itemsPerOrder = random.nextInt(8);
+//                Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu();
+//
+//                Map<Item, Integer> orderItems = new HashMap<>();
+//                System.out.println("\t\t\t\t items quantity: " + itemsPerOrder);
+//
+//                for (int j = 0; j < itemsPerOrder; j++) {
+//                    int quantity = random.nextInt(8);
+//                    int index = random.nextInt(menu.size());
+//                    orderItems.put(menu.stream().toList().get(index), quantity);//
+//                }
+//
+//                order.setOrderItems(orderItems);
+//                orderRepo.save(order);
+//                System.out.println("ORDER UPDATED");
+//            }
+//        }
+//    }
 }

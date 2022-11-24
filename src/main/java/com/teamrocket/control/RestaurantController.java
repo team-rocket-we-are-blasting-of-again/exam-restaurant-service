@@ -5,6 +5,7 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.model.OrderItem;
 import com.teamrocket.model.RestaurantOrder;
+import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,19 +60,6 @@ public class RestaurantController {
     }
 
 
-    @GetMapping("/menuids")
-    public Collection<Integer> getMenuIds(@RequestParam("id") int id) {
-
-
-        Collection<Item> items = restaurantService.getMenu(id);
-        List<Integer> ids = new ArrayList<>();
-        for (Item item: items) {
-            ids.add(item.getId());
-        }
-        return ids;
-    }
-
-
     @PatchMapping("/open")
     public ResponseEntity<String> openRestaurant(@RequestParam("id") int id) {
         return restaurantService.openRestaurant(id);
@@ -93,4 +81,16 @@ public class RestaurantController {
         order.setCreatedAt(new Date());
         return order;
     }
+
+//
+//    @Autowired
+//    private OrderService orderService;
+//
+//    @GetMapping("/populate")
+//    public String getMenuIds() {
+//
+//        orderService.populate_order_items();
+//        return "DONE";
+//
+//    }
 }

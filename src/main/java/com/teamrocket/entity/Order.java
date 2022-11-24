@@ -69,13 +69,13 @@ public class Order {
         return tPrice;
     }
 
-    private void addItem(Item item, int quantity) {
+    public void addItem(Item item, int quantity) {
         this.orderItems.put(item, quantity);
         this.setTotalPrice(this.calculateTotalPrice());
 
     }
 
-    private void setOrderItems(Map<Item, Integer> items) {
+    public void setOrderItems(Map<Item, Integer> items) {
         this.orderItems = items;
         this.calculateTotalPrice();
     }
