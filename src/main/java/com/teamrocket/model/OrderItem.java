@@ -10,6 +10,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderItem {
-    private MenuItem menuItem;
+    private int menuItemId;
     private int quantity;
+
+    @Override
+    public String toString() {
+        return "{" +
+                "menuItemId=" + menuItemId +
+                ", quantity=" + quantity +
+                '}';
+    }
 }
+
+
