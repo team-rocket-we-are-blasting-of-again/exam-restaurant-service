@@ -100,14 +100,29 @@ public class OrderService implements IOrderService {
         for (int i = 1; i < 101; i++) {
 
             //find all the orders of that restaurant
-            List<Integer> orders.orderRepo.getOrderIdsByRestaurant(i)
+            List<Order> orders = orderRepo.findAllByRestaurantId(i);
 
-            int itemsPerOrders = random.nextInt(200);
-            Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu()
+            for (Order order : orders) {
 
-            for (int j = 0; j < ordersPerRestaurant; j++) {
+                //how many items for order
+                int itemsPerOrder = random.nextInt(8);
+                Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu();
+
+                Map<Item, Integer> orderItems = new HashMap<>();
+
+                for (int j = 0; j < itemsPerOrders; j++) {
+                    int quantity = int itemsPerOrders = random.nextInt(8);
+                    int index = random.nextInt(menu.size());
+                    orderItems.put(menu.stream().toList().get(index), quantity);
+
+                }
+
+                order.setOrderItems(orderItems);
+                orderRepo.save(order);
+
 
             }
+
         }
 
     }
