@@ -237,7 +237,7 @@
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
-                                            <minimum>50.0%</minimum>
+                                            <minimum>25.0%</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
