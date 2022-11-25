@@ -51,7 +51,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void listenOnPlaceNewOrderCamunda(RestaurantOrder order) {
+    public void handleNewOrderCamunda(RestaurantOrder order) {
         logger.debug("RECEIVED ORDER: " + order.toString());
 
         sendNewOrderToRestaurant(order);

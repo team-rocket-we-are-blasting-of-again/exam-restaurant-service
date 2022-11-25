@@ -7,7 +7,7 @@ public interface IOrderService {
 
     void listenOnPlaceNewOrderKafka(RestaurantOrder order);
 
-    void listenOnPlaceNewOrderCamunda(RestaurantOrder order);
+    void handleNewOrderCamunda(RestaurantOrder order);
 
     void sendOrderWithWebSocket(RestaurantOrder order);
 
