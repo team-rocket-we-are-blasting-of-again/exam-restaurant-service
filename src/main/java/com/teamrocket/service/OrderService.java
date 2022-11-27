@@ -2,6 +2,7 @@ package com.teamrocket.service;
 
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Order;
+import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.enums.Topic;
 import com.teamrocket.model.OrderItem;
 import com.teamrocket.model.RestaurantOrder;
@@ -17,9 +18,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class OrderService implements IOrderService {
@@ -61,7 +60,7 @@ public class OrderService implements IOrderService {
             Order orderEntity = saveNewOrder(order);
             LOGGER.info("New order saved with system_order id: {} and restaurant_order_id", orderEntity.getSystemOrderId(), orderEntity.getId());
 
-            simpMessagingTemplate.convertAndSend("/new-orders/" + order.getRestaurantId() + "/private", order);
+            simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", order);
 
         } catch (NoSuchElementException e) {
             LOGGER.warn(e.getMessage());
@@ -72,6 +71,10 @@ public class OrderService implements IOrderService {
 
     @Override
     public int sendPendingOrdersToRestaurant(int restaurantId) {
+        List<Order> pendingOrders = orderRepo.findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
+        pendingOrders.forEach(order -> {
+            simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", order);
+        });
         return 0;
     }
 

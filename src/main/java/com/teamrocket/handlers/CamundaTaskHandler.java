@@ -29,10 +29,10 @@ import java.util.NoSuchElementException;
 
 @Component
 @ExternalTaskSubscription(topicName = "pendingOrder")
-public class OrderHandler implements ExternalTaskHandler {
+public class CamundaTaskHandler implements ExternalTaskHandler {
     private Gson GSON = new Gson();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CamundaTaskHandler.class);
 
     @Autowired
     OrderService orderService;
