@@ -163,7 +163,6 @@ public class OrderService implements IOrderService {
         Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
         Map<Integer, Double> itemPriceMap = new HashMap<>();
         menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
-
         return itemPriceMap;
     }
 

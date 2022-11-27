@@ -86,9 +86,14 @@ public class RestaurantController {
 
     @PatchMapping("reject")
     public ResponseEntity rejectOrder(@RequestBody RestaurantOrder restaurantOrder) {
-        String msg = orderService.cancelOrder(restaurantOrder, "Restaurants Cancellation");
-        return ResponseEntity.ok().body(msg);
+        try {
+            String msg = orderService.cancelOrder(restaurantOrder, "Restaurants Cancellation");
+            return ResponseEntity.ok().body(msg);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("System error");
+        }
     }
+}
 
 //
 //    @Autowired
@@ -101,4 +106,4 @@ public class RestaurantController {
 //        return "DONE";
 //
 //    }
-}
+
