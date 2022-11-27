@@ -4,13 +4,16 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Order;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.enums.Topic;
+import com.teamrocket.model.OrderCancelled;
 import com.teamrocket.model.OrderItem;
 import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
+import com.teamrocket.repository.RestaurantRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,6 +22,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static java.lang.String.format;
 
 @Service
 public class OrderService implements IOrderService {
@@ -35,6 +40,9 @@ public class OrderService implements IOrderService {
     private ItemRepo itemRepo;
 
     @Autowired
+    RestaurantRepo restaurantRepo;
+
+    @Autowired
     private KafkaTemplate kafkaTemplate;
 
 
@@ -43,9 +51,7 @@ public class OrderService implements IOrderService {
     @Override
     public void listenOnPlaceNewOrderKafka(@Payload RestaurantOrder order) {
         LOGGER.debug("RECEIVED ORDER: " + order.toString());
-
         sendNewOrderToRestaurant(order);
-
     }
 
     @Override
@@ -55,39 +61,83 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void sendNewOrderToRestaurant(RestaurantOrder order) {
+    public void sendNewOrderToRestaurant(RestaurantOrder restaurantOrder) {
+        String reason = "";
         try {
-            Order orderEntity = saveNewOrder(order);
+            Order orderEntity = saveNewOrder(restaurantOrder);
             LOGGER.info("New order saved with system_order id: {} and restaurant_order_id", orderEntity.getSystemOrderId(), orderEntity.getId());
 
-            simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", order);
-
+            simpMessagingTemplate.convertAndSend("/restaurant/" + restaurantOrder.getRestaurantId() + "/new-orders", restaurantOrder);
         } catch (NoSuchElementException e) {
-            LOGGER.warn(e.getMessage());
-            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), order);
-            LOGGER.info("Order with system_order id: {} cancelled", order.getId());
+            reason = "Could not find order items on restaurant's menu";
+            LOGGER.info("Order with system_order id: {} cancelled", restaurantOrder.getId());
+
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.error("Order with system_order_id {} already exists", restaurantOrder.getId());
+            reason = format("Order with system_order_id %d already exists", restaurantOrder.getId());
+        } finally {
+            cancelOrder(restaurantOrder, reason);
+
         }
     }
 
     @Override
-    public int sendPendingOrdersToRestaurant(int restaurantId) {
+    public void sendPendingOrdersToRestaurant(int restaurantId) {
         List<Order> pendingOrders = orderRepo.findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
+
         pendingOrders.forEach(order -> {
+            System.out.println(order.getId());
+
             RestaurantOrder restaurantOrder = new RestaurantOrder(order);
             simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", restaurantOrder);
         });
-        return 0;
+    }
+
+    @Override
+    public void acceptOrder(RestaurantOrder restaurantOrder) {
+        kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), restaurantOrder);
+    }
+
+    @Override
+    public void cancelOrder(RestaurantOrder restaurantOrder, String reason) {
+        OrderCancelled orderCancelled = new OrderCancelled(restaurantOrder.getId(), reason);
+        kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
     }
 
     @Override
     public Order saveNewOrder(RestaurantOrder restaurantOrder) {
+        LOGGER.info("SAVED ORDER WITH ID: {}", restaurantOrder.getId());
+
         Map<Item, Integer> items = new HashMap<>();
         for (OrderItem item : restaurantOrder.getItems()) {
             itemRepo.findById(item.getMenuItemId()).orElseThrow(() -> new NoSuchElementException("No MenuItem present with given ID: " + item.getMenuItemId()));
         }
+        restaurantOrder.setTotalPrice(calculateOrdersTotalPrice(restaurantOrder));
         Order order = new Order(restaurantOrder, items);
         order = orderRepo.save(order);
         return order;
+    }
+
+    @Override
+    public double calculateOrdersTotalPrice(RestaurantOrder restaurantOrder) {
+        double totalPrice = 0;
+
+        Map<Integer, Double> itemPriceMap = mapItemPrice(restaurantOrder);
+        for (OrderItem orderItem : restaurantOrder.getItems()) {
+            totalPrice += (
+                    itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
+            );
+        }
+        return totalPrice;
+    }
+
+    @Override
+    public Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder) {
+        Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
+        Map<Integer, Double> itemPriceMap = new HashMap<>();
+        menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
+
+        return itemPriceMap;
     }
 
 

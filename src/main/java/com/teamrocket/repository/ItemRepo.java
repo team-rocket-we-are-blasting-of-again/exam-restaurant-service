@@ -11,4 +11,5 @@ public interface ItemRepo extends JpaRepository<Item, Integer> {
 
 
     List<Item> findItemsByCategory(String category);
+
 }

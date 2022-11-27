@@ -3,6 +3,7 @@ package com.teamrocket.service;
 import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.RestaurantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,10 @@ import java.util.*;
 public class RestaurantService implements IRestaurantService {
     @Autowired
     RestaurantRepo restaurantRepo;
+
+    @Autowired
+    ItemRepo itemRepo;
+
 
     @Override
     public Restaurant createNewRestaurant(String name) {
