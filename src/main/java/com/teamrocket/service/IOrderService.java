@@ -15,9 +15,9 @@ public interface IOrderService {
 
     void sendPendingOrdersToRestaurant(int restaurantId);
 
-    void acceptOrder(RestaurantOrder restaurantOrder);
+    String acceptOrder(RestaurantOrder restaurantOrder) throws Exception;
 
-    void cancelOrder(RestaurantOrder restaurantOrder, String reason);
+    String cancelOrder(RestaurantOrder restaurantOrder, String reason);
 
     Order saveNewOrder(RestaurantOrder restaurantOrder);
 

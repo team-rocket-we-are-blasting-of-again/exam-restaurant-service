@@ -3,6 +3,8 @@ package com.teamrocket.control;
 import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.model.RestaurantOrder;
+import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,9 @@ public class RestaurantController {
 
     @Autowired
     RestaurantService restaurantService;
+
+    @Autowired
+    OrderService orderService;
 
     @PostMapping("/register")
     public Restaurant createNew(@RequestBody String name) {
@@ -62,6 +67,27 @@ public class RestaurantController {
     @PatchMapping("/close")
     public ResponseEntity<String> closeRestaurant(@RequestParam("id") int id) {
         return restaurantService.closeRestaurant(id);
+    }
+
+    @PatchMapping("accept")
+    public ResponseEntity acceptOrder(@RequestBody RestaurantOrder restaurantOrder) {
+        String msg;
+        try {
+            msg = orderService.acceptOrder(restaurantOrder);
+            return ResponseEntity.ok().body(msg);
+        } catch (NullPointerException e) {
+            msg = e.getMessage();
+            return ResponseEntity.status(400).body(msg);
+        } catch (RuntimeException e) {
+            msg = e.getMessage();
+            return ResponseEntity.status(500).body(msg);
+        }
+    }
+
+    @PatchMapping("reject")
+    public ResponseEntity rejectOrder(@RequestBody RestaurantOrder restaurantOrder) {
+        String msg = orderService.cancelOrder(restaurantOrder, "Restaurants Cancellation");
+        return ResponseEntity.ok().body(msg);
     }
 
 //

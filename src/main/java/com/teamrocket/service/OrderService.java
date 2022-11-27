@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -94,14 +95,37 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void acceptOrder(RestaurantOrder restaurantOrder) {
-        kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), restaurantOrder);
+    public String acceptOrder(RestaurantOrder restaurantOrder) {
+        String msg = "Order in Progress";
+        try {
+            Order order = orderRepo.findBySystemOrderId(restaurantOrder.getId());
+            order.setStatus(OrderStatus.IN_PROGRESS);
+            kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), restaurantOrder);
+            return msg;
+        } catch (NullPointerException e) {
+            LOGGER.error("Exception {} occurred", e.getClass());
+            msg = format("No Order with id %f found", restaurantOrder.getRestaurantId());
+            throw new NullPointerException(msg);
+        } catch (KafkaException k) {
+            msg = format("Order with id %f could not be processed with broker", restaurantOrder.getRestaurantId());
+            cancelOrder(restaurantOrder, msg);
+            throw new RuntimeException(msg);
+        } catch (RuntimeException a) {
+            LOGGER.error("Exception {} occurred", a.getClass());
+            msg = format("Order with id %f could not be processed due system error", restaurantOrder.getRestaurantId());
+            cancelOrder(restaurantOrder, msg);
+            throw new RuntimeException(msg);
+        }
+
+
     }
 
     @Override
-    public void cancelOrder(RestaurantOrder restaurantOrder, String reason) {
+    public String cancelOrder(RestaurantOrder restaurantOrder, String reason) {
+        String msg = "Order cancelled";
         OrderCancelled orderCancelled = new OrderCancelled(restaurantOrder.getId(), reason);
         kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
+        return msg;
     }
 
     @Override
