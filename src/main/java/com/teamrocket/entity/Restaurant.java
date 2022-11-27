@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity(name = "Restaurant")
@@ -22,7 +22,7 @@ public class Restaurant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
 
     @Column(name = "restaurant_name",
             columnDefinition = "TEXT",
@@ -34,6 +34,9 @@ public class Restaurant {
     private Set<Item> menu = new HashSet<>();
     @Column(columnDefinition = "boolean default false")
     private boolean open;
+
+    @ManyToMany
+    private List<Category> categories;
 
     public Restaurant(String name) {
         this.name = name;

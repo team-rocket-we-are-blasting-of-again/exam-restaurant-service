@@ -4,6 +4,8 @@ import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.service.RestaurantService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,9 @@ import java.util.Collection;
 @RestController
 @RequestMapping("")
 public class RestaurantController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RestaurantController.class);
+
 
     @Autowired
     RestaurantService restaurantService;
@@ -48,13 +53,26 @@ public class RestaurantController {
         return restaurantService.getMenu(id);
     }
 
+
     @PatchMapping("/open")
     public ResponseEntity<String> openRestaurant(@RequestParam("id") int id) {
         return restaurantService.openRestaurant(id);
     }
 
     @PatchMapping("/close")
-    public ResponseEntity<String>  closeRestaurant(@RequestParam("id") int id) {
+    public ResponseEntity<String> closeRestaurant(@RequestParam("id") int id) {
         return restaurantService.closeRestaurant(id);
     }
+
+//
+//    @Autowired
+//    private OrderService orderService;
+//
+//    @GetMapping("/populate")
+//    public String getMenuIds() {
+//
+//        orderService.populate_order_items();
+//        return "DONE";
+//
+//    }
 }
