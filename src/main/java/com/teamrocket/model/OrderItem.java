@@ -1,5 +1,6 @@
 package com.teamrocket.model;
 
+import com.teamrocket.entity.Item;
 import com.teamrocket.model.camunda.CamundaOrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,12 @@ public class OrderItem {
         this.menuItemId = camundaOrderItem.getMenuItemId();
         this.quantity = camundaOrderItem.getAmount();
         this.name = camundaOrderItem.getName();
+    }
+
+    public OrderItem(Item item, int amount) {
+        this.menuItemId = item.getId();
+        this.quantity = amount;
+        this.name = item.getName();
     }
 
     @Override

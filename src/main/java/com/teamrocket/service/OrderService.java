@@ -73,7 +73,8 @@ public class OrderService implements IOrderService {
     public int sendPendingOrdersToRestaurant(int restaurantId) {
         List<Order> pendingOrders = orderRepo.findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
         pendingOrders.forEach(order -> {
-            simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", order);
+            RestaurantOrder restaurantOrder = new RestaurantOrder(order);
+            simpMessagingTemplate.convertAndSend("/restaurant/" + order.getRestaurantId() + "/new-orders", restaurantOrder);
         });
         return 0;
     }
