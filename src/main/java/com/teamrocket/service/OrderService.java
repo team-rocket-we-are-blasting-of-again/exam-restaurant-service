@@ -124,6 +124,9 @@ public class OrderService implements IOrderService {
     public String cancelOrder(RestaurantOrder restaurantOrder, String reason) {
         String msg = "Order cancelled";
         OrderCancelled orderCancelled = new OrderCancelled(restaurantOrder.getId(), reason);
+        Order order = orderRepo.findBySystemOrderId(restaurantOrder.getId());
+        order.setStatus(OrderStatus.CANCELED);
+        orderRepo.save(order);
         kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
         return msg;
     }
