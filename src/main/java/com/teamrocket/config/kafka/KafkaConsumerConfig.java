@@ -10,11 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.mapping.DefaultJackson2JavaTypeMapper;
@@ -59,6 +56,7 @@ public class KafkaConsumerConfig {
         converter.setTypeMapper(typeMapper);
         return converter;
     }
+
     @Bean
     public ConsumerFactory<String, Object> multiTypeConsumerFactory() {
         HashMap<String, Object> props = new HashMap<>();
@@ -75,23 +73,5 @@ public class KafkaConsumerConfig {
         factory.setMessageConverter(multiTypeConverter());
         return factory;
     }
-
-//
-//    @Bean
-//    public ConsumerFactory<String, Object> consumerFactory() {
-//        return new DefaultKafkaConsumerFactory<>(consumerConfig());
-//    }
-//
-//    @Bean
-//    public KafkaListenerContainerFactory<
-//            ConcurrentMessageListenerContainer<String, Object>> factory(
-//            ConsumerFactory<String, Object> consumerFactory
-//    ) {
-//        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-//                new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory());
-//        factory.getContainerProperties().setAckMode((ContainerProperties.AckMode.MANUAL_IMMEDIATE));
-//        return factory;
-//    }
 
 }

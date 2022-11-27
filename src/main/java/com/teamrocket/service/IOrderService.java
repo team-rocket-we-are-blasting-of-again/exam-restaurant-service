@@ -9,7 +9,7 @@ public interface IOrderService {
 
     void handleNewOrderCamunda(RestaurantOrder order);
 
-    void sendOrderWithWebSocket(RestaurantOrder order);
+    void sendNewOrderToRestaurant(RestaurantOrder order);
 
     int sendPendingOrdersToRestaurant(int restaurantId);
 

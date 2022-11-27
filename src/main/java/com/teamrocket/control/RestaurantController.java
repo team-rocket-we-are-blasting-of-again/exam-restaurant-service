@@ -3,9 +3,6 @@ package com.teamrocket.control;
 import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
-import com.teamrocket.model.OrderItem;
-import com.teamrocket.model.RestaurantOrder;
-import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -68,18 +62,6 @@ public class RestaurantController {
     @PatchMapping("/close")
     public ResponseEntity<String> closeRestaurant(@RequestParam("id") int id) {
         return restaurantService.closeRestaurant(id);
-    }
-
-    @GetMapping
-    public RestaurantOrder o() {
-        List<OrderItem> items = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            items.add(new OrderItem(i, 5 - i));
-        }
-        RestaurantOrder order = new RestaurantOrder();
-        order.setItems(items);
-        order.setCreatedAt(new Date());
-        return order;
     }
 
 //

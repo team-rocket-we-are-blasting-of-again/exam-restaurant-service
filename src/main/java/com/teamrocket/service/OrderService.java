@@ -7,7 +7,6 @@ import com.teamrocket.model.OrderItem;
 import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
-import com.teamrocket.repository.RestaurantRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,14 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class OrderService implements IOrderService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -35,16 +36,14 @@ public class OrderService implements IOrderService {
     private ItemRepo itemRepo;
 
     @Autowired
-    private RestaurantRepo restaurantRepo;
-
-    @Autowired
     private KafkaTemplate kafkaTemplate;
+
 
     @KafkaListener(id = "order_service", topics = "NEW_ORDER_PLACED")
     @KafkaHandler
     @Override
     public void listenOnPlaceNewOrderKafka(@Payload RestaurantOrder order) {
-        logger.debug("RECEIVED ORDER: " + order.toString());
+        LOGGER.debug("RECEIVED ORDER: " + order.toString());
 
         sendNewOrderToRestaurant(order);
 
@@ -52,15 +51,23 @@ public class OrderService implements IOrderService {
 
     @Override
     public void handleNewOrderCamunda(RestaurantOrder order) {
-        logger.debug("RECEIVED ORDER: " + order.toString());
-
+        LOGGER.debug("RECEIVED ORDER: " + order.toString());
         sendNewOrderToRestaurant(order);
-
     }
 
     @Override
-    public void sendOrderWithWebSocket(RestaurantOrder order) {
+    public void sendNewOrderToRestaurant(RestaurantOrder order) {
+        try {
+            Order orderEntity = saveNewOrder(order);
+            LOGGER.info("New order saved with system_order id: {} and restaurant_order_id", orderEntity.getSystemOrderId(), orderEntity.getId());
 
+            simpMessagingTemplate.convertAndSend("/new-orders/" + order.getRestaurantId() + "/private", order);
+
+        } catch (NoSuchElementException e) {
+            LOGGER.warn(e.getMessage());
+            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), order);
+            LOGGER.info("Order with system_order id: {} cancelled", order.getId());
+        }
     }
 
     @Override
@@ -79,20 +86,10 @@ public class OrderService implements IOrderService {
         return order;
     }
 
-    private void sendNewOrderToRestaurant(RestaurantOrder order) {
-        try {
-            Order orderEntity = saveNewOrder(order);
-            logger.info("New order saved with system_order id: {} and restaurant_order_id", orderEntity.getSystemOrderId(), orderEntity.getId());
 
-            simpMessagingTemplate.convertAndSend("/new-orders/" + order.getRestaurantId() + "/private", order);
-
-        } catch (NoSuchElementException e) {
-            logger.warn(e.getMessage());
-            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), order);
-            logger.info("Order with system_order id: {} cancelled", order.getId());
-        }
-    }
-
+}
+//    @Autowired
+//    private RestaurantRepo restaurantRepo;
 //
 //    public void populate_order_items() {
 //        Random random = new Random();
@@ -124,4 +121,4 @@ public class OrderService implements IOrderService {
 //            }
 //        }
 //    }
-}
+
