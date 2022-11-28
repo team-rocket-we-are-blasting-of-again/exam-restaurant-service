@@ -1,8 +1,9 @@
 package com.teamrocket.control;
 
-import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.RestaurantAcceptDeclineRequest;
 import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
@@ -19,7 +20,7 @@ import java.util.Collection;
 @RequestMapping("")
 public class RestaurantController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestaurantController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantController.class);
 
 
     @Autowired
@@ -70,28 +71,26 @@ public class RestaurantController {
     }
 
     @PatchMapping("accept")
-    public ResponseEntity acceptOrder(@RequestBody RestaurantOrder restaurantOrder) {
-        String msg;
-        try {
-            msg = orderService.acceptOrder(restaurantOrder);
-            return ResponseEntity.ok().body(msg);
-        } catch (NullPointerException e) {
-            msg = e.getMessage();
-            return ResponseEntity.status(400).body(msg);
-        } catch (RuntimeException e) {
-            msg = e.getMessage();
-            return ResponseEntity.status(500).body(msg);
-        }
+    public ResponseEntity acceptOrder(@RequestBody RestaurantAcceptDeclineRequest acceptrequest) {
+
+        return orderService.acceptOrder(acceptrequest);
+
     }
 
     @PatchMapping("reject")
-    public ResponseEntity rejectOrder(@RequestBody RestaurantOrder restaurantOrder) {
+    public ResponseEntity rejectOrder(@RequestBody RestaurantAcceptDeclineRequest cancelRequest) {
         try {
-            String msg = orderService.cancelOrder(restaurantOrder, "Restaurants Cancellation");
-            return ResponseEntity.ok().body(msg);
+            return orderService.cancelOrder(cancelRequest);
+
         } catch (Exception e) {
+            LOGGER.error("In reject order: {}", e.getMessage());
             return ResponseEntity.status(500).body("System error");
         }
+    }
+
+    @GetMapping("/model")
+    public RestaurantOrder model() {
+        return new RestaurantOrder();
     }
 }
 

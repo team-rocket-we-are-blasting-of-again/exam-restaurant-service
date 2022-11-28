@@ -1,7 +1,9 @@
 package com.teamrocket.service;
 
 import com.teamrocket.entity.Order;
+import com.teamrocket.model.RestaurantAcceptDeclineRequest;
 import com.teamrocket.model.RestaurantOrder;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
@@ -15,9 +17,9 @@ public interface IOrderService {
 
     void sendPendingOrdersToRestaurant(int restaurantId);
 
-    String acceptOrder(RestaurantOrder restaurantOrder) throws Exception;
+    ResponseEntity acceptOrder(RestaurantAcceptDeclineRequest acceptRequest) throws Exception;
 
-    String cancelOrder(RestaurantOrder restaurantOrder, String reason);
+    ResponseEntity cancelOrder(RestaurantAcceptDeclineRequest acceptRequest);
 
     Order saveNewOrder(RestaurantOrder restaurantOrder);
 

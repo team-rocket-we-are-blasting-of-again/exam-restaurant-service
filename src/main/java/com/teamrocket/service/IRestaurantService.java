@@ -1,13 +1,11 @@
 package com.teamrocket.service;
 
-import com.teamrocket.dto.ItemsRequest;
+import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
-import com.teamrocket.model.RestaurantOrder;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 public interface IRestaurantService {

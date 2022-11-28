@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CamundaRepo extends JpaRepository<CamundaOrderTask,Integer> {
+    CamundaOrderTask findBySystemOrderIdAndAndProcessId(int orderId, String processId);
 }
