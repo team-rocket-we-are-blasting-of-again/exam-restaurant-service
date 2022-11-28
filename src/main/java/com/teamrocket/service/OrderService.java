@@ -110,8 +110,6 @@ public class OrderService implements IOrderService {
                     restaurantOrder.getRestaurantId(), reason));
 
         }
-
-
     }
 
     @Override
@@ -120,8 +118,6 @@ public class OrderService implements IOrderService {
                 findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
 
         pendingOrders.forEach(order -> {
-            System.out.println(order.getId());
-
             RestaurantOrder restaurantOrder = new RestaurantOrder(order);
             simpMessagingTemplate.convertAndSend("/restaurant/"
                     + order.getRestaurantId()
@@ -151,7 +147,6 @@ public class OrderService implements IOrderService {
             LOGGER.error("Exception {} occurred", e.getClass());
             return ResponseEntity.status(400).body(msg);
         } catch (KafkaException e) {
-
             return ResponseEntity.status(500).body(msg);
         }
     }
@@ -184,7 +179,6 @@ public class OrderService implements IOrderService {
 
     @Override
     public Order saveNewOrder(RestaurantOrder restaurantOrder) {
-        restaurantOrder.getItems().forEach(i -> System.out.println(i.toString()));
 
         Map<Item, Integer> items = new HashMap<>();
         for (OrderItem item : restaurantOrder.getItems()) {
@@ -218,8 +212,6 @@ public class OrderService implements IOrderService {
 
     @Override
     public Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder) {
-        System.out.println("RestaurantID : " + restaurantOrder.getRestaurantId());
-        System.out.println(restaurantOrder.getRestaurantId());
         Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
         Map<Integer, Double> itemPriceMap = new HashMap<>();
         menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
@@ -265,6 +257,7 @@ public class OrderService implements IOrderService {
 
 
 }
+// Should be removed when final SQL scripts for db populating are ready
 //    @Autowired
 //    private RestaurantRepo restaurantRepo;
 //

@@ -45,7 +45,6 @@ public class WebSocketEventListener {
         Map<String, ArrayList> map = (Map<String, ArrayList>) msg.getHeaders().get("nativeHeaders");
         String restaurantId = (String) map.get("restaurantId").get(0);
 
-
         if ((restaurantId).equals(sessions.get(sessionId))) {
             orderService.sendPendingOrdersToRestaurant(Integer.parseInt(restaurantId));
         } else {
@@ -55,14 +54,16 @@ public class WebSocketEventListener {
 
     @EventListener
     private void handleSessionUnsubscribe(SessionUnsubscribeEvent event) {
-        System.out.println("MAGDA5");
-        System.out.println(event.getMessage());
+        //TODO
+//        System.out.println("handleSessionUnsubscribe");
+//        System.out.println(event.getMessage());
     }
 
     @EventListener
     private void handleSessionDisconnect(SessionDisconnectEvent event) {
-        System.out.println("MAGDA4");
-        System.out.println(event.getMessage());
+        //TODO
+//        System.out.println("handleSessionDisconnect");
+//        System.out.println(event.getMessage());
 
     }
 }

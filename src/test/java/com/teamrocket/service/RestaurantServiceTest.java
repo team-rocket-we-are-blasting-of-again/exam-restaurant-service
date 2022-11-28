@@ -62,7 +62,6 @@ class RestaurantServiceTest {
 
     @Test
     void createNewRestaurantTest() {
-        System.out.println(restaurantService.createNewRestaurant(restaurantName));
         assertTrue(restaurantService.createNewRestaurant(restaurantName).getName().equals(restaurantName));
     }
 

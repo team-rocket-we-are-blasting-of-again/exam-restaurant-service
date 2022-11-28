@@ -2,7 +2,6 @@ package com.teamrocket.control;
 
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
-import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.model.RestaurantAcceptDeclineRequest;
 import com.teamrocket.service.OrderService;
@@ -10,7 +9,6 @@ import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,16 +72,13 @@ public class RestaurantController {
 
     @PatchMapping("accept")
     public ResponseEntity acceptOrder(@RequestBody RestaurantAcceptDeclineRequest acceptrequest) {
-
         return orderService.acceptOrder(acceptrequest);
-
     }
 
     @PatchMapping("reject")
     public ResponseEntity rejectOrder(@RequestBody RestaurantAcceptDeclineRequest cancelRequest) {
         try {
             return orderService.cancelOrder(cancelRequest);
-
         } catch (Exception e) {
             LOGGER.error("In reject order: {}", e.getMessage());
             return ResponseEntity.status(500).body("System error");
@@ -92,9 +87,7 @@ public class RestaurantController {
 
     @GetMapping("/orders")
     public ResponseEntity getRestaurantsOrdersByStatus(@RequestParam("restaurant") int id, @RequestParam("status") List<String> statusList) {
-       return ResponseEntity.ok(restaurantService.getOrdersForRestaurantByStatus(id, statusList));
-
-
+        return ResponseEntity.ok(restaurantService.getOrdersForRestaurantByStatus(id, statusList));
     }
 }
 
