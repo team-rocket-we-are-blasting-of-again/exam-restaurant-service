@@ -2,18 +2,20 @@ package com.teamrocket.control;
 
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.model.RestaurantAcceptDeclineRequest;
-import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -88,9 +90,11 @@ public class RestaurantController {
         }
     }
 
-    @GetMapping("/model")
-    public RestaurantOrder model() {
-        return new RestaurantOrder();
+    @GetMapping("/orders")
+    public ResponseEntity getRestaurantsOrdersByStatus(@RequestParam("restaurant") int id, @RequestParam("status") List<String> statusList) {
+       return ResponseEntity.ok(restaurantService.getOrdersForRestaurantByStatus(id, statusList));
+
+
     }
 }
 

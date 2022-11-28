@@ -1,10 +1,14 @@
 package com.teamrocket.service;
 
-import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.enums.OrderStatus;
+import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.repository.ItemRepo;
+import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +19,17 @@ import java.util.*;
 
 @Service
 public class RestaurantService implements IRestaurantService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantService.class);
+
     @Autowired
     RestaurantRepo restaurantRepo;
 
     @Autowired
     ItemRepo itemRepo;
 
+    @Autowired
+    private OrderRepo orderRepo;
 
     @Override
     public Restaurant createNewRestaurant(String name) {
@@ -137,5 +146,21 @@ public class RestaurantService implements IRestaurantService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
+    }
+
+    @Override
+    public ResponseEntity getOrdersForRestaurantByStatus(int restaurantId, List<String> statusList) {
+        List<OrderStatus> status = new ArrayList<>();
+        for (String s : statusList) {
+            try {
+                s = s.toUpperCase();
+                status.add(OrderStatus.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                LOGGER.info("Invalid status: {}", s);
+            }
+        }
+        return ResponseEntity.ok(orderRepo.findByRestaurantIdAndStatusIn(restaurantId, status));
+
+
     }
 }
