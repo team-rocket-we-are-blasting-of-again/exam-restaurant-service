@@ -1,4 +1,4 @@
-package com.teamrocket.dto;
+package com.teamrocket.model;
 
 import com.teamrocket.entity.Item;
 import lombok.AllArgsConstructor;

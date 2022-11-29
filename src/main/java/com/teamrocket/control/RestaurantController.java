@@ -1,8 +1,10 @@
 package com.teamrocket.control;
 
-import com.teamrocket.dto.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
+import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.RestaurantAcceptDeclineRequest;
+import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,17 +13,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @CrossOrigin
 @RestController
 @RequestMapping("")
 public class RestaurantController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestaurantController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantController.class);
 
 
     @Autowired
     RestaurantService restaurantService;
+
+    @Autowired
+    OrderService orderService;
 
     @PostMapping("/register")
     public Restaurant createNew(@RequestBody String name) {
@@ -64,6 +70,27 @@ public class RestaurantController {
         return restaurantService.closeRestaurant(id);
     }
 
+    @PatchMapping("accept")
+    public ResponseEntity acceptOrder(@RequestBody RestaurantAcceptDeclineRequest acceptrequest) {
+        return orderService.acceptOrder(acceptrequest);
+    }
+
+    @PatchMapping("reject")
+    public ResponseEntity rejectOrder(@RequestBody RestaurantAcceptDeclineRequest cancelRequest) {
+        try {
+            return orderService.cancelOrder(cancelRequest);
+        } catch (Exception e) {
+            LOGGER.error("In reject order: {}", e.getMessage());
+            return ResponseEntity.status(500).body("System error");
+        }
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity getRestaurantsOrdersByStatus(@RequestParam("restaurant") int id, @RequestParam("status") List<String> statusList) {
+        return ResponseEntity.ok(restaurantService.getOrdersForRestaurantByStatus(id, statusList));
+    }
+}
+
 //
 //    @Autowired
 //    private OrderService orderService;
@@ -75,4 +102,4 @@ public class RestaurantController {
 //        return "DONE";
 //
 //    }
-}
+

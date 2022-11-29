@@ -1,5 +1,7 @@
 package com.teamrocket.model;
 
+import com.teamrocket.entity.Item;
+import com.teamrocket.entity.Order;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.camunda.CamundaOrder;
 import com.teamrocket.model.camunda.CamundaOrderItem;
@@ -8,6 +10,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,9 +35,24 @@ public class RestaurantOrder {
         mapCamundaItems(camundaOrder.getItems());
     }
 
+    public RestaurantOrder(Order entity) {
+        this.id = entity.getId();
+        this.restaurantId = entity.getRestaurantId();
+        this.createdAt = entity.getCreatedAt();
+        this.status = entity.getStatus();
+        this.withDelivery = entity.isWithDelivery();
+        mapMenuItemsToOrderItems(entity.getOrderItems());
+    }
+
     private void mapCamundaItems(List<CamundaOrderItem> camundaItems) {
         camundaItems.forEach(c -> {
             items.add(new OrderItem(c));
+        });
+    }
+
+    private void mapMenuItemsToOrderItems(Map<Item, Integer> itemList) {
+        itemList.keySet().forEach(m -> {
+            items.add(new OrderItem(m, itemList.get(m)));
         });
     }
 

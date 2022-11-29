@@ -1,6 +1,6 @@
 package com.teamrocket.service;
 
-import com.teamrocket.dto.ItemsRequest;
+import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.repository.RestaurantRepo;
@@ -62,7 +62,6 @@ class RestaurantServiceTest {
 
     @Test
     void createNewRestaurantTest() {
-        System.out.println(restaurantService.createNewRestaurant(restaurantName));
         assertTrue(restaurantService.createNewRestaurant(restaurantName).getName().equals(restaurantName));
     }
 
