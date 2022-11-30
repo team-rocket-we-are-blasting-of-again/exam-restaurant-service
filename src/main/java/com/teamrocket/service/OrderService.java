@@ -27,10 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.KafkaException;
-import org.springframework.kafka.annotation.KafkaHandler;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -71,18 +68,14 @@ public class OrderService implements IOrderService {
     private String restEngine;
 
 
-    @KafkaListener(id = "order_service", topics = "NEW_ORDER_PLACED")
-    @KafkaHandler
-    @Override
-    public void listenOnPlaceNewOrderKafka(@Payload RestaurantOrder order) {
-        LOGGER.info("RECEIVED ORDER: " + order.toString());
-        sendNewOrderToRestaurant(order);
-    }
-
     @Override
     public void handleNewOrderCamunda(RestaurantOrder order) {
         LOGGER.info("RECEIVED ORDER: " + order.toString());
-        sendNewOrderToRestaurant(order);
+        try {
+            sendNewOrderToRestaurant(order);
+        } catch (Exception e) {
+            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), new OrderCancelled(order.getId(), "Unexpected error"));
+        }
     }
 
     @Override
@@ -108,7 +101,6 @@ public class OrderService implements IOrderService {
             reason = format("Order with system_order_id %d already exists", restaurantOrder.getId());
             cancelOrder(new RestaurantAcceptDeclineRequest(restaurantOrder.getId(),
                     restaurantOrder.getRestaurantId(), reason));
-
         }
     }
 

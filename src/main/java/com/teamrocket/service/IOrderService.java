@@ -9,8 +9,6 @@ import java.util.Map;
 
 public interface IOrderService {
 
-    void listenOnPlaceNewOrderKafka(RestaurantOrder order);
-
     void handleNewOrderCamunda(RestaurantOrder order);
 
     void sendNewOrderToRestaurant(RestaurantOrder order);
