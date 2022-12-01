@@ -40,7 +40,7 @@ public class RestaurantController {
     }
 
     @PostMapping("/items")
-    public Collection<Item> addNewItems(@RequestBody ItemsRequest request) {
+    public Collection<Item> addNewItems(@RequestBody ItemsRequest request, @RequestHeaders <headers) {
         return restaurantService.addNewItems(request);
     }
 
