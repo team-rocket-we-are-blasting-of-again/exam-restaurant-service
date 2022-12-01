@@ -160,7 +160,5 @@ public class RestaurantService implements IRestaurantService {
             }
         }
         return ResponseEntity.ok(orderRepo.findByRestaurantIdAndStatusIn(restaurantId, status));
-
-
     }
 }

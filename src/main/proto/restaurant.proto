@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package com.teamrocket.proto;
+
+message RegisterRestaurantRequest {
+  string name = 1;
+  string email = 2;
+  string phone = 3;
+}
+
+message Category {
+  string name = 1;
+}
+
+message RegisterRestaurantResponse {
+  int32  id = 1;
+}
+
+message Menu {
+  int32 restaurantId = 1;
+  repeated Item menu = 2;
+}
+
+message Item {
+  int32 id = 1;
+  string name = 2;
+  string category = 3;
+  string description = 4;
+  double price = 5;
+}
+
+message CUDItemsRequest {
+  int32 restaurantId = 1;
+  repeated Item items = 2;
+}
+
+message MenuRequest {
+  int32 restaurantId = 1;
+  repeated string categories = 2;
+}
+
+message OpenClose {
+  int32 restaurantId = 1;
+  bool open = 2;
+}
+
+service RestaurantManagement {
+  rpc register(RegisterRestaurantRequest) returns (RegisterRestaurantResponse);
+  rpc setMenu(RegisterRestaurantRequest) returns (RegisterRestaurantResponse);
+  rpc createItems(CUDItemsRequest) returns (Menu);
+  rpc updateItems(CUDItemsRequest) returns (Menu);
+  rpc deleteItems(CUDItemsRequest) returns (Menu);
+  rpc getMenu(MenuRequest) returns (Menu);
+  rpc openOrClose(OpenClose) returns (OpenClose);
+}

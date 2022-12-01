@@ -34,6 +34,8 @@ public class Restaurant {
     private Set<Item> menu = new HashSet<>();
     @Column(columnDefinition = "boolean default false")
     private boolean open;
+    private String email;
+    private String phone;
 
     @ManyToMany
     private List<Category> categories;
