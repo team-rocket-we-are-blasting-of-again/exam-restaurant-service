@@ -30,6 +30,7 @@ jobs:
 
       - name: Setup variables
         run: |
+          sudo apt update
           sudo apt install libxml-xpath-perl -y
           get_xpath_value() {
             xml=$1
