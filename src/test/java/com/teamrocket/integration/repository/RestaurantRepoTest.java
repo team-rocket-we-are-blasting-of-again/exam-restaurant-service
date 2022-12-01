@@ -42,9 +42,9 @@ public class  RestaurantRepoTest {
     }
 
     @Test
-    void setOpenCLoseRestaurantTest() {
+    void setOpenCloseRestaurantTest() {
         Restaurant r = restaurantRepo.save(new Restaurant("MAM"));
-        restaurantRepo.setOpenCLoseRestaurant(r.getId(), true);
+        restaurantRepo.setOpenCloseRestaurant(r.getId(), true);
         assertTrue(restaurantRepo.findById(r.getId()).get().isOpen());
     }
 

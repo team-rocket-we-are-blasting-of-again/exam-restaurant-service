@@ -4,6 +4,7 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.RegisterRestaurantRequest;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
@@ -23,17 +24,30 @@ public class RestaurantService implements IRestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantService.class);
 
     @Autowired
-    RestaurantRepo restaurantRepo;
+    private RestaurantRepo restaurantRepo;
 
     @Autowired
-    ItemRepo itemRepo;
+    private ItemRepo itemRepo;
 
     @Autowired
     private OrderRepo orderRepo;
 
+    @Autowired
+    private AuthClient authClient;
+
+
     @Override
-    public Restaurant createNewRestaurant(String name) {
-        Restaurant restaurant = new Restaurant(name);
+    public Restaurant createNewRestaurant(RegisterRestaurantRequest request) {
+        Restaurant restaurant = Restaurant.builder()
+                .email(request.getEmail())
+                .name(request.getName())
+                .phone(request.getPhone())
+                .build();
+
+        System.out.println(restaurant.toString());
+        restaurant = restaurantRepo.save(restaurant);
+        restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
+
         return restaurantRepo.save(restaurant);
     }
 
@@ -125,7 +139,7 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public ResponseEntity<String> openRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, true);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, true);
         if (rowsUpdated > 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
@@ -138,7 +152,7 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public ResponseEntity<String> closeRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, false);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, false);
         if (rowsUpdated > 1) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
@@ -146,6 +160,18 @@ public class RestaurantService implements IRestaurantService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
+    }
+
+    @Override
+    public ResponseEntity archiveRestaurant(int id) {
+        int rowsUpdated = restaurantRepo.setOpenArchiveRestaurant(id, true);
+        if (rowsUpdated > 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
+        }
+        if (rowsUpdated < 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to ARCHIVED");
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.teamrocket.control;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.RegisterRestaurantRequest;
 import com.teamrocket.model.RestaurantAcceptDeclineRequest;
 import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
@@ -30,8 +31,8 @@ public class RestaurantController {
     OrderService orderService;
 
     @PostMapping("/register")
-    public Restaurant createNew(@RequestBody String name) {
-        return restaurantService.createNewRestaurant(name);
+    public Restaurant createNew(@RequestBody RegisterRestaurantRequest request) {
+        return restaurantService.createNewRestaurant(request);
     }
 
     @PostMapping("/menu")
@@ -68,6 +69,11 @@ public class RestaurantController {
     @PatchMapping("/close")
     public ResponseEntity<String> closeRestaurant(@RequestParam("id") int id) {
         return restaurantService.closeRestaurant(id);
+    }
+
+    @PatchMapping("/archive")
+    public ResponseEntity<String>  archiveRestaurant(@RequestParam("id") int id) {
+        return restaurantService.archiveRestaurant(id);
     }
 
     @PatchMapping("accept")
