@@ -20,7 +20,7 @@ services:
 
   camunda:
     container_name: camunda
-    image: tobiaszimmer/exam-camunda-server:processUpdate-0.0.3
+    image: tobiaszimmer/exam-camunda-server:development-0.0.3
     ports:
       - "8080:8080"
     environment:
