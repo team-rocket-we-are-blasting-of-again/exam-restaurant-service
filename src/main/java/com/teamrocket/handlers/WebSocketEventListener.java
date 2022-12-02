@@ -33,7 +33,7 @@ public class WebSocketEventListener {
         String sessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
         GenericMessage msg = (GenericMessage) event.getMessage().getHeaders().get("simpConnectMessage");
         Map<String, ArrayList> map = (Map<String, ArrayList>) msg.getHeaders().get("nativeHeaders");
-        String restaurantId = (String) map.get("restaurantId").get(0);
+        String restaurantId = (String) map.get("role_id").get(0);
         sessions.put(sessionId, restaurantId);
     }
 
@@ -43,7 +43,7 @@ public class WebSocketEventListener {
         String sessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
         GenericMessage msg = (GenericMessage) event.getMessage();
         Map<String, ArrayList> map = (Map<String, ArrayList>) msg.getHeaders().get("nativeHeaders");
-        String restaurantId = (String) map.get("restaurantId").get(0);
+        String restaurantId = (String) map.get("role_id").get(0);
 
         if ((restaurantId).equals(sessions.get(sessionId))) {
             orderService.sendPendingOrdersToRestaurant(Integer.parseInt(restaurantId));
