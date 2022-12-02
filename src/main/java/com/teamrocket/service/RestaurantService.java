@@ -52,7 +52,6 @@ public class RestaurantService implements IRestaurantService {
                 .phone(request.getPhone())
                 .build();
 
-        System.out.println(restaurant.toString());
         restaurant = restaurantRepo.save(restaurant);
         restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
 
