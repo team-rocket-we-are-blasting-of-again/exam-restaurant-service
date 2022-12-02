@@ -14,10 +14,10 @@ public class AuthClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthClient.class);
 
 
-    @Value("${grpc.client.grpc-service.host}")
+    @Value("${grpc-service.host}")
     private String grpcHost;
 
-    @Value("${grpc.client.grpc-service.port}")
+    @Value("${grpc-service.port}")
     private int grpcPort;
 
 

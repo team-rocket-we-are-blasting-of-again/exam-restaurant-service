@@ -5,12 +5,17 @@ import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.ItemsRequest;
 import com.teamrocket.model.RegisterRestaurantRequest;
-import com.teamrocket.repository.ItemRepo;
+import com.teamrocket.proto.CreateUserRequest;
+import com.teamrocket.proto.CreateUserResponse;
+import com.teamrocket.proto.Role;
+import com.teamrocket.proto.UserGrpc;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,10 +32,13 @@ public class RestaurantService implements IRestaurantService {
     private RestaurantRepo restaurantRepo;
 
     @Autowired
-    private ItemRepo itemRepo;
-
-    @Autowired
     private OrderRepo orderRepo;
+
+//    @Value("${grpc.client.grpc-service.address}")
+//    private String authServer;
+//
+//    @GrpcClient("localhost:9000")
+//    private UserGrpc.UserBlockingStub userBlockingStub;
 
     @Autowired
     private AuthClient authClient;
@@ -48,8 +56,24 @@ public class RestaurantService implements IRestaurantService {
         restaurant = restaurantRepo.save(restaurant);
         restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
 
+        /*
+          CreateUserResponse response = userBlockingStub.createUser(createUserRequest(restaurant));
+        restaurant.setUserId(response.getId());
+         */
         return restaurantRepo.save(restaurant);
     }
+
+    // Outcommented method might be used instead of GrpcClient - but first we need to get it to work
+//
+//    private CreateUserRequest createUserRequest(Restaurant restaurant) {
+//        return CreateUserRequest
+//                .newBuilder()
+//                .setRole(Role.RESTAURANT)
+//                .setRoleId(restaurant.getId())
+//                .setEmail(restaurant.getEmail())
+//                .build();
+//    }
+
 
     @Override
     public Set<Item> addNewMenu(ItemsRequest request) {
