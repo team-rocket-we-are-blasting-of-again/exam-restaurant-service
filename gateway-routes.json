@@ -4,17 +4,19 @@
     "forwardUri": "http://restaurant:8080",
     "routePathDto": [
       {
+        "path": "/restaurant/actuator/**",
+        "method": "BASIC",
+        "rolesAllowed": []
+      },
+      {
         "path": "/restaurant/menu",
         "method": "NONE",
-        "httpMethod": [
-          "GET"
-        ],
+        "httpMethod": "GET",
         "rolesAllowed": []
       },
       {
         "path": "/restaurant/**",
         "method": "BEARER",
-        "httpMethod": [],
         "rolesAllowed": [
           "RESTAURANT"
         ]
