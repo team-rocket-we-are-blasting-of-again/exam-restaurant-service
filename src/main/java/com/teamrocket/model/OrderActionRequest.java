@@ -9,9 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class MenuItem {
-    private Integer id;
-    private String name;
-    private String description;
-    private double price;
+public class OrderActionRequest {
+    int orderId;
+    int restaurantId;
+    String msg;
 }

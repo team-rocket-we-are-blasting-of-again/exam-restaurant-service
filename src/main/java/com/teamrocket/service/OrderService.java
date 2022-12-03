@@ -6,10 +6,7 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Order;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.enums.Topic;
-import com.teamrocket.model.OrderCancelled;
-import com.teamrocket.model.OrderItem;
-import com.teamrocket.model.RestaurantAcceptDeclineRequest;
-import com.teamrocket.model.RestaurantOrder;
+import com.teamrocket.model.*;
 import com.teamrocket.model.camunda.OrderAccepted;
 import com.teamrocket.model.camunda.TaskVariables;
 import com.teamrocket.model.camunda.Variables;
@@ -92,80 +89,15 @@ public class OrderService implements IOrderService {
         } catch (NoSuchElementException e) {
             reason = "Could not find order items on restaurant's menu";
             LOGGER.info("Order with system_order id: {} cancelled due {}", restaurantOrder.getId(), reason);
-            cancelOrder(new RestaurantAcceptDeclineRequest(restaurantOrder.getId(),
+            cancelOrder(new OrderActionRequest(restaurantOrder.getId(),
                     restaurantOrder.getRestaurantId(), reason));
 
 
         } catch (DataIntegrityViolationException e) {
             LOGGER.error("Order with system_order_id {} already exists", restaurantOrder.getId());
             reason = format("Order with system_order_id %d already exists", restaurantOrder.getId());
-            cancelOrder(new RestaurantAcceptDeclineRequest(restaurantOrder.getId(),
+            cancelOrder(new OrderActionRequest(restaurantOrder.getId(),
                     restaurantOrder.getRestaurantId(), reason));
-        }
-    }
-
-    @Override
-    public void sendPendingOrdersToRestaurant(int restaurantId) {
-        List<Order> pendingOrders = orderRepo.
-                findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
-
-        pendingOrders.forEach(order -> {
-            RestaurantOrder restaurantOrder = new RestaurantOrder(order);
-            simpMessagingTemplate.convertAndSend("/restaurant/"
-                    + order.getRestaurantId()
-                    + "/new-orders", restaurantOrder);
-        });
-    }
-
-    @Override
-    public ResponseEntity acceptOrder(RestaurantAcceptDeclineRequest acceptRequest) {
-        String msg = format("Order with id %d for restaurant id %d could not be processed",
-                acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
-
-        try {
-            Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
-            if (!order.getStatus().equals(OrderStatus.PENDING)) {
-                return ResponseEntity.status(410).body("Order most likely has already been accepted");
-            } else {
-                order.setStatus(OrderStatus.IN_PROGRESS);
-                orderRepo.save(order);
-                RestaurantOrder restaurantOrder = new RestaurantOrder(order);
-                kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), restaurantOrder);
-                completeCamundaTask(acceptRequest.getOrderId(), true);
-                LOGGER.info("Order Accepted");
-                return ResponseEntity.ok("Order in Progress");
-            }
-        } catch (NullPointerException e) {
-            LOGGER.error("Exception {} occurred", e.getClass());
-            return ResponseEntity.status(400).body(msg);
-        } catch (KafkaException e) {
-            return ResponseEntity.status(500).body(msg);
-        }
-    }
-
-    @Override
-    public ResponseEntity cancelOrder(RestaurantAcceptDeclineRequest cancelRequest) {
-        String msg = format("Order with id %d for restaurant id %d could not be processed",
-                cancelRequest.getOrderId(), cancelRequest.getRestaurantId());
-        OrderCancelled orderCancelled = new OrderCancelled(cancelRequest.getOrderId(), cancelRequest.getMsg());
-        try {
-            Order order = orderRepo.findBySystemOrderId(cancelRequest.getOrderId());
-            if (order.getStatus().equals(OrderStatus.PENDING)) {
-                order.setStatus(OrderStatus.CANCELED);
-                orderRepo.save(order);
-                kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
-                try {
-                    completeCamundaTask(cancelRequest.getOrderId(), false);
-                } catch (Exception e) {
-                    LOGGER.info("No camunda task for order id {}", cancelRequest.getOrderId());
-                }
-                return ResponseEntity.ok("Order cancelled");
-            } else {
-                return ResponseEntity.status(410).body("Order already in process can not be cancelled");
-            }
-        } catch (NullPointerException e) {
-            LOGGER.info("No order with id {} in DB", cancelRequest.getOrderId());
-            return ResponseEntity.status(500).body(msg);
         }
     }
 
@@ -190,27 +122,118 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public double calculateOrdersTotalPrice(RestaurantOrder restaurantOrder) {
-        double totalPrice = 0;
+    public void sendPendingOrdersToRestaurant(int restaurantId) {
+        List<Order> pendingOrders = orderRepo.
+                findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
 
-        Map<Integer, Double> itemPriceMap = mapItemPrice(restaurantOrder);
-        for (OrderItem orderItem : restaurantOrder.getItems()) {
-            totalPrice += (
-                    itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
-            );
-        }
-        return totalPrice;
+        pendingOrders.forEach(order -> {
+            RestaurantOrder restaurantOrder = new RestaurantOrder(order);
+            simpMessagingTemplate.convertAndSend("/restaurant/"
+                    + order.getRestaurantId()
+                    + "/new-orders", restaurantOrder);
+        });
     }
 
     @Override
-    public Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder) {
-        Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
-        Map<Integer, Double> itemPriceMap = new HashMap<>();
-        menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
-        return itemPriceMap;
+    public ResponseEntity acceptOrder(OrderActionRequest acceptRequest) {
+        String msg = format("Order with id %d for restaurant id %d could not be processed",
+                acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
+        try {
+            Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
+            if (!order.getStatus().equals(OrderStatus.PENDING)) {
+                return ResponseEntity.status(410).body("Order most likely has already been accepted");
+            } else {
+                order.setStatus(OrderStatus.IN_PROGRESS);
+                orderRepo.save(order);
+                OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
+                kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), kafkaMsg);
+                completeCamundaTask(acceptRequest.getOrderId(), true);
+                LOGGER.info("Order Accepted");
+                return ResponseEntity.ok("Order in Progress");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("Exception {} occurred", e.getClass());
+            return ResponseEntity.status(400).body(msg);
+        } catch (KafkaException e) {
+            return ResponseEntity.status(500).body(msg);
+        }
     }
 
-    public void completeCamundaTask(int orderId, boolean accepted) {
+    @Override
+    public ResponseEntity cancelOrder(OrderActionRequest cancelRequest) {
+        String msg = format("Order with id %d for restaurant id %d could not be processed",
+                cancelRequest.getOrderId(), cancelRequest.getRestaurantId());
+        OrderCancelled orderCancelled = new OrderCancelled(cancelRequest.getOrderId(), cancelRequest.getMsg());
+        try {
+            Order order = orderRepo.findBySystemOrderId(cancelRequest.getOrderId());
+            if (order.getStatus().equals(OrderStatus.PENDING)) {
+                order.setStatus(OrderStatus.CANCELED);
+                orderRepo.save(order);
+                kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
+                try {
+                    completeCamundaTask(cancelRequest.getOrderId(), false);
+                } catch (Exception e) {
+                    LOGGER.info("No camunda task for order id {}", cancelRequest.getOrderId());
+                }
+                return ResponseEntity.ok("Order cancelled");
+            } else {
+                return ResponseEntity.status(410).body("Order already in process can not be cancelled");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.info("No order with id {} in DB", cancelRequest.getOrderId());
+            return ResponseEntity.status(500).body(msg);
+        }
+    }
+
+
+    @Override
+    public ResponseEntity orderCollected(OrderActionRequest completeRequest) {
+        String msg = format("Order with id %d for restaurant id %d could not be processed",
+                completeRequest.getOrderId(), completeRequest.getRestaurantId());
+        try {
+            Order order = orderRepo.findBySystemOrderId(completeRequest.getOrderId());
+            if (!order.getStatus().equals(OrderStatus.IN_PROGRESS)) {
+                return ResponseEntity.status(410).body("Order not in process can not be collected");
+            } else {
+                order.setStatus(OrderStatus.PICKED_UP);
+                orderRepo.save(order);
+                OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
+                kafkaTemplate.send(Topic.ORDER_PICKED_UP.toString(), kafkaMsg);
+                return ResponseEntity.ok("Order completed");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.info("No order with id {} in DB", completeRequest.getOrderId());
+            return ResponseEntity.status(500).body(msg);
+        }
+    }
+
+    @Override
+    public Object orderReady(OrderActionRequest readyRequest) {
+            try {
+            Order order = orderRepo.findBySystemOrderId(readyRequest.getOrderId());
+            if (!order.getStatus().equals(OrderStatus.IN_PROGRESS)) {
+                return ResponseEntity.status(410).body("Order not in process can not be collected");
+            } else {
+                order.setStatus(OrderStatus.READY);
+                orderRepo.save(order);
+                OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
+                kafkaTemplate.send(Topic.ORDER_READY.toString(), kafkaMsg);
+                return ResponseEntity.ok("Order ready for pickup");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.info("No order with id {} in DB", readyRequest.getOrderId());
+            return ResponseEntity.status(500).body(format("Order with id %d for restaurant id %d could not be processed",
+                    readyRequest.getOrderId(), readyRequest.getRestaurantId()));
+        }
+    }
+
+    @Override
+    public RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order) {
+        order.setTotalPrice(calculateOrdersTotalPrice(order));
+        return order;
+    }
+
+    private void completeCamundaTask(int orderId, boolean accepted) {
         try {
             CamundaOrderTask task = camundaRepo.findById(orderId).
                     orElseThrow(() -> new NoSuchElementException("No task defined for orderId: " + orderId));
@@ -247,40 +270,23 @@ public class OrderService implements IOrderService {
         return GSON.toJson(taskVariables, TaskVariables.class);
     }
 
+    private double calculateOrdersTotalPrice(RestaurantOrder restaurantOrder) {
+        double totalPrice = 0;
 
+        Map<Integer, Double> itemPriceMap = mapItemPrice(restaurantOrder);
+        for (OrderItem orderItem : restaurantOrder.getItems()) {
+            totalPrice += (
+                    itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
+            );
+        }
+        return totalPrice;
+    }
+
+    private Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder) {
+        Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
+        Map<Integer, Double> itemPriceMap = new HashMap<>();
+        menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
+        return itemPriceMap;
+    }
 }
-// Should be removed when final SQL scripts for db populating are ready
-//    @Autowired
-//    private RestaurantRepo restaurantRepo;
-//
-//    public void populate_order_items() {
-//        Random random = new Random();
-//        //for each restaurant
-//        for (int i = 1; i < 101; i++) {
-//            System.out.println("Restaurant : " + i);
-//
-//            //find all  orders of that restaurant
-//            List<Order> orders = orderRepo.findAllByRestaurantId(i);
-//
-//            for (Order order : orders) {
-//                System.out.println("\t\t order " + order.getId());
-//                //how many items for order
-//                int itemsPerOrder = random.nextInt(8);
-//                Collection<Item> menu = restaurantRepo.findByIdWithMenu(i).getMenu();
-//
-//                Map<Item, Integer> orderItems = new HashMap<>();
-//                System.out.println("\t\t\t\t items quantity: " + itemsPerOrder);
-//
-//                for (int j = 0; j < itemsPerOrder; j++) {
-//                    int quantity = random.nextInt(8);
-//                    int index = random.nextInt(menu.size());
-//                    orderItems.put(menu.stream().toList().get(index), quantity);//
-//                }
-//
-//                order.setOrderItems(orderItems);
-//                orderRepo.save(order);
-//                System.out.println("ORDER UPDATED");
-//            }
-//        }
-//    }
 

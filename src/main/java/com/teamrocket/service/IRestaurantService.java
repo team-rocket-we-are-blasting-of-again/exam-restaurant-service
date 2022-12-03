@@ -1,7 +1,6 @@
 package com.teamrocket.service;
 
-import com.teamrocket.enums.OrderStatus;
-import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import org.springframework.http.ResponseEntity;

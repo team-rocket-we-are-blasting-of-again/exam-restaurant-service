@@ -3,7 +3,7 @@ package com.teamrocket.service;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
-import com.teamrocket.model.ItemsRequest;
+import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
