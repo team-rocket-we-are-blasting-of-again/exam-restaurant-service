@@ -23,23 +23,53 @@ public class RestaurantService implements IRestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantService.class);
 
     @Autowired
-    RestaurantRepo restaurantRepo;
-
-    @Autowired
-    ItemRepo itemRepo;
+    private RestaurantRepo restaurantRepo;
 
     @Autowired
     private OrderRepo orderRepo;
 
+//    @Value("${grpc.client.grpc-service.address}")
+//    private String authServer;
+//
+//    @GrpcClient("localhost:9000")
+//    private UserGrpc.UserBlockingStub userBlockingStub;
+
+    @Autowired
+    private AuthClient authClient;
+
+
     @Override
-    public Restaurant createNewRestaurant(String name) {
-        Restaurant restaurant = new Restaurant(name);
+    public Restaurant createNewRestaurant(RegisterRestaurantRequest request) {
+        Restaurant restaurant = Restaurant.builder()
+                .email(request.getEmail())
+                .name(request.getName())
+                .phone(request.getPhone())
+                .build();
+
+        restaurant = restaurantRepo.save(restaurant);
+        restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
+
+        /*
+          CreateUserResponse response = userBlockingStub.createUser(createUserRequest(restaurant));
+        restaurant.setUserId(response.getId());
+         */
         return restaurantRepo.save(restaurant);
     }
 
+    // Outcommented method might be used instead of GrpcClient - but first we need to get it to work
+//
+//    private CreateUserRequest createUserRequest(Restaurant restaurant) {
+//        return CreateUserRequest
+//                .newBuilder()
+//                .setRole(Role.RESTAURANT)
+//                .setRoleId(restaurant.getId())
+//                .setEmail(restaurant.getEmail())
+//                .build();
+//    }
+
+
     @Override
     public Set<Item> addNewMenu(ItemsRequest request) {
-
         try {
             Restaurant restaurant = restaurantRepo.findByIdWithMenu(request.getRestaurantId());
             Set<Item> items = new HashSet<>();
@@ -65,7 +95,6 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public Collection<Item> editItems(ItemsRequest request) {
-
         Set<Integer> itemIds = new HashSet<>();
         request.getItems().forEach(i -> {
             if (i.getId() == null) {
@@ -119,33 +148,51 @@ public class RestaurantService implements IRestaurantService {
         try {
             return restaurantRepo.findByIdWithMenu(id).getMenu();
         } catch (NullPointerException e) {
+            LOGGER.info("getMenu for restaurant id {} : restaurant does not exist");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Restaurant with id %s does not exist", id));
         }
     }
 
     @Override
     public ResponseEntity<String> openRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, true);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, true);
         if (rowsUpdated > 1) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
+            LOGGER.warn("openRestaurant with id {} : More then one Restaurants updated", id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
         }
         if (rowsUpdated < 1) {
+            LOGGER.warn("openRestaurant with id {} : No Restaurants updated", id);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
-
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to OPEN");
     }
 
     @Override
     public ResponseEntity<String> closeRestaurant(int id) {
-        int rowsUpdated = restaurantRepo.setOpenCLoseRestaurant(id, false);
+        int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, false);
         if (rowsUpdated > 1) {
+            LOGGER.warn("CloseRestaurant with id {} : More then one Restaurants updated", id);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
         }
         if (rowsUpdated < 1) {
+            LOGGER.warn("closeRestaurant with id {} : No Restaurants updated", id);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
+    }
+
+    @Override
+    public ResponseEntity archiveRestaurant(int id) {
+        int rowsUpdated = restaurantRepo.setOpenArchiveRestaurant(id, true);
+        if (rowsUpdated > 1) {
+            LOGGER.warn("archiveRestaurant with id {} : More then one Restaurants updated", id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
+        }
+        if (rowsUpdated < 1) {
+            LOGGER.warn("archiveRestaurant with id {} : No Restaurants updated", id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to ARCHIVED");
     }
 
     @Override
@@ -160,7 +207,5 @@ public class RestaurantService implements IRestaurantService {
             }
         }
         return ResponseEntity.ok(orderRepo.findByRestaurantIdAndStatusIn(restaurantId, status));
-
-
     }
 }

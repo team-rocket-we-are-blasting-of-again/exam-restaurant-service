@@ -70,6 +70,11 @@ public class RestaurantController {
         return restaurantService.closeRestaurant(id);
     }
 
+    @PatchMapping("/archive")
+    public ResponseEntity<String>  archiveRestaurant(@RequestParam("id") int id) {
+        return restaurantService.archiveRestaurant(id);
+    }
+
     @PatchMapping("accept")
     public ResponseEntity acceptOrder(@RequestBody OrderActionRequest acceptRequest) {
         try {

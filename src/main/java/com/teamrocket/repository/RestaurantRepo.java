@@ -15,13 +15,14 @@ import java.util.Set;
 @Transactional
 public interface RestaurantRepo extends JpaRepository<Restaurant, Integer> {
 
-
     @Query("SELECT r FROM Restaurant r LEFT JOIN FETCH r.menu m WHERE r.id = ?1")
     Restaurant findByIdWithMenu(int id);
 
     @Modifying
     @Query("UPDATE Restaurant r SET r.open= ?2 WHERE r.id = ?1")
-    int setOpenCLoseRestaurant(int restaurantId, boolean open);
+    int setOpenCloseRestaurant(int restaurantId, boolean open);
 
-
+    @Modifying
+    @Query("UPDATE Restaurant r SET r.archived= ?2 WHERE r.id = ?1")
+    int setOpenArchiveRestaurant(int restaurantId, boolean archive);
 }
