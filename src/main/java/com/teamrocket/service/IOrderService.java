@@ -2,7 +2,6 @@ package com.teamrocket.service;
 
 import com.teamrocket.model.OrderActionRequest;
 import com.teamrocket.model.RestaurantOrder;
-import org.springframework.http.ResponseEntity;
 
 public interface IOrderService {
 
@@ -12,7 +11,7 @@ public interface IOrderService {
 
     String acceptOrder(OrderActionRequest acceptRequest) throws Exception;
 
-    ResponseEntity cancelOrder(OrderActionRequest acceptRequest);
+    String restaurantCancelsOrder(OrderActionRequest acceptRequest);
 
     RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order);
 

@@ -83,7 +83,7 @@ public class RestaurantController {
 
     @PatchMapping("reject")
     public ResponseEntity rejectOrder(@RequestBody OrderActionRequest cancelRequest) {
-        return ResponseEntity.ok(orderService.cancelOrder(cancelRequest));
+        return ResponseEntity.ok(orderService.restaurantCancelsOrder(cancelRequest));
     }
 
     @PatchMapping("ready")

@@ -19,7 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -85,15 +88,23 @@ public class OrderService implements IOrderService {
         } catch (NoSuchElementException e) {
             reason = "Could not find order items on restaurant's menu";
             LOGGER.info("Order with system_order id: {} cancelled due {}", restaurantOrder.getId(), reason);
-            cancelOrder(new OrderActionRequest(restaurantOrder.getId(),
-                    restaurantOrder.getRestaurantId(), reason));
 
+            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), new OrderCancelled(restaurantOrder.getId(), reason));
+            try {
+                completeCamundaTask(restaurantOrder.getId(), false);
+            } catch (Exception c) {
+                LOGGER.info("No camunda task for order id {}", restaurantOrder.getId());
+            }
 
         } catch (DataIntegrityViolationException e) {
             LOGGER.error("Order with system_order_id {} already exists", restaurantOrder.getId());
             reason = format("Order with system_order_id %d already exists", restaurantOrder.getId());
-            cancelOrder(new OrderActionRequest(restaurantOrder.getId(),
-                    restaurantOrder.getRestaurantId(), reason));
+            kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), new OrderCancelled(restaurantOrder.getId(), reason));
+            try {
+                completeCamundaTask(restaurantOrder.getId(), false);
+            } catch (Exception c) {
+                LOGGER.info("No camunda task for order id {}", restaurantOrder.getId());
+            }
         }
     }
 
@@ -149,7 +160,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public ResponseEntity cancelOrder(OrderActionRequest cancelRequest) {
+    public String restaurantCancelsOrder(OrderActionRequest cancelRequest) {
         OrderCancelled orderCancelled = new OrderCancelled(cancelRequest.getOrderId(), cancelRequest.getMsg());
         try {
             Order order = orderRepo.findBySystemOrderId(cancelRequest.getOrderId());
@@ -162,7 +173,7 @@ public class OrderService implements IOrderService {
                 } catch (Exception e) {
                     LOGGER.info("No camunda task for order id {}", cancelRequest.getOrderId());
                 }
-                return ResponseEntity.ok("Order cancelled");
+                return "Order cancelled";
             } else {
                 throw new ResponseStatusException(HttpStatus.valueOf(410), "Order already in progress can not be cancelled");
             }
@@ -193,17 +204,17 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Object orderReady(OrderActionRequest readyRequest) {
+    public String orderReady(OrderActionRequest readyRequest) {
         try {
             Order order = orderRepo.findBySystemOrderId(readyRequest.getOrderId());
             if (!order.getStatus().equals(OrderStatus.IN_PROGRESS)) {
-                return ResponseEntity.status(410).body("Order not in process can not be collected");
+                throw new ResponseStatusException(HttpStatus.valueOf(410), "Order not in process can not be collected");
             } else {
                 order.setStatus(OrderStatus.READY);
                 orderRepo.save(order);
                 OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
                 kafkaTemplate.send(Topic.ORDER_READY.toString(), kafkaMsg);
-                return ResponseEntity.ok("Order ready for pickup");
+                return "Order ready for pickup";
             }
         } catch (NullPointerException e) {
             throw new NoSuchElementException("No Order present with given ID: "
