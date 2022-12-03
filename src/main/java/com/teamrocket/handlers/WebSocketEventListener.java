@@ -45,7 +45,7 @@ public class WebSocketEventListener {
         Map<String, ArrayList> map = (Map<String, ArrayList>) msg.getHeaders().get("nativeHeaders");
         String restaurantId = (String) map.get("role_id").get(0);
 
-        if ((restaurantId).equals(sessions.get(sessionId))) {
+        if (restaurantId.equals(sessions.get(sessionId))) {
             orderService.sendPendingOrdersToRestaurant(Integer.parseInt(restaurantId));
         } else {
             LOGGER.info("No session with given id");

@@ -26,7 +26,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private int systemOrderId;
 
     private int restaurantId;
@@ -50,13 +50,13 @@ public class Order {
 
     private double totalPrice;
 
-    public Order(RestaurantOrder restaurantOrder,  Map<Item, Integer> items) {
-        this.systemOrderId=restaurantOrder.getId();
-        this.restaurantId=restaurantOrder.getRestaurantId();
-        this.createdAt=restaurantOrder.getCreatedAt();
-        this.status=restaurantOrder.getStatus();
-        this.withDelivery=restaurantOrder.isWithDelivery();
-        this.totalPrice=restaurantOrder.getTotalPrice();
+    public Order(RestaurantOrder restaurantOrder, Map<Item, Integer> items) {
+        this.systemOrderId = restaurantOrder.getId();
+        this.restaurantId = restaurantOrder.getRestaurantId();
+        this.createdAt = restaurantOrder.getCreatedAt();
+        this.status = restaurantOrder.getStatus();
+        this.withDelivery = restaurantOrder.isWithDelivery();
+        this.totalPrice = restaurantOrder.getTotalPrice();
         this.setOrderItems(items);
 
     }
@@ -80,7 +80,4 @@ public class Order {
         this.calculateTotalPrice();
     }
 
-    private void setTotalPrice() {
-        this.totalPrice = this.calculateTotalPrice();
-    }
 }
