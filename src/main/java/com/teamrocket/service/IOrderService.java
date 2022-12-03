@@ -11,15 +11,13 @@ public interface IOrderService {
 
     void handleNewOrderCamunda(RestaurantOrder order);
 
-    void sendNewOrderToRestaurant(RestaurantOrder order);
+   // void sendNewOrderToRestaurant(RestaurantOrder order);
 
     void sendPendingOrdersToRestaurant(int restaurantId);
 
     ResponseEntity acceptOrder(OrderActionRequest acceptRequest) throws Exception;
 
     ResponseEntity cancelOrder(OrderActionRequest acceptRequest);
-
-    Order saveNewOrder(RestaurantOrder restaurantOrder);
 
     RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order);
 
