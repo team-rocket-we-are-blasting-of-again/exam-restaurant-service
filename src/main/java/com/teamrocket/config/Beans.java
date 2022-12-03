@@ -30,4 +30,10 @@ public class Beans {
         return UserGrpc.newBlockingStub(channel);
     }
 
+    @Bean
+    public ManagedChannel managedChannel() {
+        return ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
+                .usePlaintext()
+                .build();
+    }
 }
