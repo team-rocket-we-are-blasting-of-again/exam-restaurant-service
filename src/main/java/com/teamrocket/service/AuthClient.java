@@ -6,6 +6,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,9 @@ public class AuthClient {
     @Value("${grpc-service.port}")
     private int grpcPort;
 
+    @Autowired
+    UserGrpc.UserBlockingStub userBlockingStub;
+
 
     public int registerRestaurantUser(Restaurant restaurant) {
         LOGGER.info("host: {}, port: {}", grpcHost, grpcPort);
@@ -28,10 +32,7 @@ public class AuthClient {
                 .build();
         LOGGER.info("gRPC Channel {} ", channel.toString());
 
-        UserGrpc.UserBlockingStub stub
-                = UserGrpc.newBlockingStub(channel);
-
-        CreateUserResponse response = stub.createUser(CreateUserRequest
+        CreateUserResponse response = userBlockingStub.createUser(CreateUserRequest
                 .newBuilder()
                 .setRole(Role.RESTAURANT)
                 .setRoleId(restaurant.getId())
