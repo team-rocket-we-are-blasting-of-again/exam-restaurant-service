@@ -1,9 +1,8 @@
 package com.teamrocket.service;
 
-import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
-import com.teamrocket.model.RegisterRestaurantRequest;
+import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.repository.RestaurantRepo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -160,23 +158,24 @@ class RestaurantServiceTest {
     }
 
     @Test
-    void openRestaurantTest() {
-        assertTrue(restaurantService.openRestaurant(restaurantId).getStatusCode() == HttpStatus.OK);
+    void openRestaurantTest() throws Exception {
+        assertTrue(restaurantService.openRestaurant(restaurantId).equals("Restaurant sat to OPEN"));
     }
 
     @Test
-    void givenNonExistingRestaurantIDWhenOpenRestaurantThenResponseCode500() {
-        assertTrue(restaurantService.openRestaurant(5).getStatusCode().value() == 500);
+    void givenNonExistingRestaurantIDWhenOpenRestaurantThenThrowsException() throws Exception {
+        assertThrows(Exception.class, () -> restaurantService.openRestaurant(5));
     }
 
     @Test
-    void givenNonExistingRestaurantIDWhenCloseRestaurantThenResponseCode500() {
-        assertTrue(restaurantService.closeRestaurant(5).getStatusCode().value() == 500);
+    void givenNonExistingRestaurantIDWhenCloseRestaurantThenThrowsException() {
+        assertThrows(Exception.class, () -> restaurantService.closeRestaurant(5));
+
     }
 
     @Test
-    void closeRestaurantTest() {
-        assertTrue(restaurantService.closeRestaurant(restaurantId).getStatusCode() == HttpStatus.OK);
+    void closeRestaurantTest() throws Exception {
+        assertTrue(restaurantService.closeRestaurant(restaurantId).equals("Restaurant sat to CLOSED"));
 
     }
 

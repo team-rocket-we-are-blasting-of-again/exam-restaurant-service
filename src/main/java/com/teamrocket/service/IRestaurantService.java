@@ -1,10 +1,10 @@
 package com.teamrocket.service;
 
+import com.teamrocket.entity.Order;
 import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.model.RegisterRestaurantRequest;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,12 +23,12 @@ public interface IRestaurantService {
 
     Collection<Item> getMenu(int id);
 
-    ResponseEntity<String> openRestaurant(int id);
+    String openRestaurant(int id) throws Exception;
 
-    ResponseEntity<String> closeRestaurant(int id);
+    String closeRestaurant(int id) throws Exception;
 
-    ResponseEntity archiveRestaurant(int id);
+    String archiveRestaurant(int id) throws Exception;
 
-    ResponseEntity getOrdersForRestaurantByStatus(int restaurantId, List<String> statusList);
+    Set<Order> getOrdersForRestaurantByStatus(int restaurantId, List<String> statusList);
 
 }

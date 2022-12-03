@@ -1,17 +1,17 @@
 package com.teamrocket.service;
 
 import com.teamrocket.entity.Item;
+import com.teamrocket.entity.Order;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
+import com.teamrocket.model.RegisterRestaurantRequest;
 import com.teamrocket.model.items.ItemsRequest;
-import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,15 +28,8 @@ public class RestaurantService implements IRestaurantService {
     @Autowired
     private OrderRepo orderRepo;
 
-//    @Value("${grpc.client.grpc-service.address}")
-//    private String authServer;
-//
-//    @GrpcClient("localhost:9000")
-//    private UserGrpc.UserBlockingStub userBlockingStub;
-
     @Autowired
     private AuthClient authClient;
-
 
     @Override
     public Restaurant createNewRestaurant(RegisterRestaurantRequest request) {
@@ -49,24 +42,8 @@ public class RestaurantService implements IRestaurantService {
         restaurant = restaurantRepo.save(restaurant);
         restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
 
-        /*
-          CreateUserResponse response = userBlockingStub.createUser(createUserRequest(restaurant));
-        restaurant.setUserId(response.getId());
-         */
         return restaurantRepo.save(restaurant);
     }
-
-    // Outcommented method might be used instead of GrpcClient - but first we need to get it to work
-//
-//    private CreateUserRequest createUserRequest(Restaurant restaurant) {
-//        return CreateUserRequest
-//                .newBuilder()
-//                .setRole(Role.RESTAURANT)
-//                .setRoleId(restaurant.getId())
-//                .setEmail(restaurant.getEmail())
-//                .build();
-//    }
-
 
     @Override
     public Set<Item> addNewMenu(ItemsRequest request) {
@@ -154,49 +131,49 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public ResponseEntity<String> openRestaurant(int id) {
+    public String openRestaurant(int id) throws Exception {
         int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, true);
         if (rowsUpdated > 1) {
             LOGGER.warn("openRestaurant with id {} : More then one Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
+            throw new Exception("More then one Restaurants updated");
         }
         if (rowsUpdated < 1) {
             LOGGER.warn("openRestaurant with id {} : No Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+            throw new Exception("Status not updated");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to OPEN");
+        return "Restaurant sat to OPEN";
     }
 
     @Override
-    public ResponseEntity<String> closeRestaurant(int id) {
+    public String closeRestaurant(int id) throws Exception {
         int rowsUpdated = restaurantRepo.setOpenCloseRestaurant(id, false);
         if (rowsUpdated > 1) {
             LOGGER.warn("CloseRestaurant with id {} : More then one Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then Restaurants updated");
+            throw new Exception("Status not updated");
         }
         if (rowsUpdated < 1) {
             LOGGER.warn("closeRestaurant with id {} : No Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+            throw new Exception("Status not updated");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to CLOSED");
+        return "Restaurant sat to CLOSED";
     }
 
     @Override
-    public ResponseEntity archiveRestaurant(int id) {
+    public String archiveRestaurant(int id) throws Exception {
         int rowsUpdated = restaurantRepo.setOpenArchiveRestaurant(id, true);
         if (rowsUpdated > 1) {
             LOGGER.warn("archiveRestaurant with id {} : More then one Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("More then one Restaurants updated");
+            throw new Exception("Status not updated");
         }
         if (rowsUpdated < 1) {
             LOGGER.warn("archiveRestaurant with id {} : No Restaurants updated", id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Status not updated");
+            throw new Exception("Status not updated");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Restaurant sat to ARCHIVED");
+        return "Restaurant sat to ARCHIVED";
     }
 
     @Override
-    public ResponseEntity getOrdersForRestaurantByStatus(int restaurantId, List<String> statusList) {
+    public Set<Order> getOrdersForRestaurantByStatus(int restaurantId, List<String> statusList) {
         List<OrderStatus> status = new ArrayList<>();
         for (String s : statusList) {
             try {
@@ -206,6 +183,6 @@ public class RestaurantService implements IRestaurantService {
                 LOGGER.info("Invalid status: {}", s);
             }
         }
-        return ResponseEntity.ok(orderRepo.findByRestaurantIdAndStatusIn(restaurantId, status));
+        return orderRepo.findByRestaurantIdAndStatusIn(restaurantId, status);
     }
 }

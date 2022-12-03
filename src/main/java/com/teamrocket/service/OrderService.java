@@ -19,14 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -111,7 +109,6 @@ public class OrderService implements IOrderService {
         Order order = new Order(restaurantOrder, items);
         order = orderRepo.save(order);
         LOGGER.info("SAVED ORDER WITH ID: {}", restaurantOrder.getId());
-
         return order;
     }
 
@@ -129,13 +126,13 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public ResponseEntity acceptOrder(OrderActionRequest acceptRequest) {
+    public String acceptOrder(OrderActionRequest acceptRequest) {
         String msg = format("Order with id %d for restaurant id %d could not be processed",
                 acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
         try {
             Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
             if (!order.getStatus().equals(OrderStatus.PENDING)) {
-                return ResponseEntity.status(410).body("Order most likely has already been accepted");
+                throw new ResponseStatusException(HttpStatus.valueOf(410), "Order most likely has already been accepted");
             } else {
                 order.setStatus(OrderStatus.IN_PROGRESS);
                 orderRepo.save(order);
@@ -143,7 +140,7 @@ public class OrderService implements IOrderService {
                 kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), kafkaMsg);
                 completeCamundaTask(acceptRequest.getOrderId(), true);
                 LOGGER.info("Order with id {} Accepted", acceptRequest.getOrderId());
-                return ResponseEntity.ok("Order in Progress");
+                return "Order in Progress";
             }
         } catch (NullPointerException e) {
             throw new NoSuchElementException("No Order present with given ID: "
@@ -153,8 +150,6 @@ public class OrderService implements IOrderService {
 
     @Override
     public ResponseEntity cancelOrder(OrderActionRequest cancelRequest) {
-        String msg = format("Order with id %d for restaurant id %d could not be processed",
-                cancelRequest.getOrderId(), cancelRequest.getRestaurantId());
         OrderCancelled orderCancelled = new OrderCancelled(cancelRequest.getOrderId(), cancelRequest.getMsg());
         try {
             Order order = orderRepo.findBySystemOrderId(cancelRequest.getOrderId());
@@ -169,7 +164,7 @@ public class OrderService implements IOrderService {
                 }
                 return ResponseEntity.ok("Order cancelled");
             } else {
-                return ResponseEntity.status(410).body("Order already in progress can not be cancelled");
+                throw new ResponseStatusException(HttpStatus.valueOf(410), "Order already in progress can not be cancelled");
             }
         } catch (NullPointerException e) {
             throw new NoSuchElementException("No Order present with given ID: "
@@ -179,19 +174,17 @@ public class OrderService implements IOrderService {
 
 
     @Override
-    public ResponseEntity orderCollected(OrderActionRequest completeRequest) {
-        String msg = format("Order with id %d for restaurant id %d could not be processed",
-                completeRequest.getOrderId(), completeRequest.getRestaurantId());
+    public String orderCollected(OrderActionRequest completeRequest) {
         try {
             Order order = orderRepo.findBySystemOrderId(completeRequest.getOrderId());
             if (!order.getStatus().equals(OrderStatus.IN_PROGRESS)) {
-                return ResponseEntity.status(410).body("Order not in progress can not be collected");
+                throw new ResponseStatusException(HttpStatus.valueOf(410), "Order not in progress can not be collected");
             } else {
                 order.setStatus(OrderStatus.PICKED_UP);
                 orderRepo.save(order);
                 OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
                 kafkaTemplate.send(Topic.ORDER_PICKED_UP.toString(), kafkaMsg);
-                return ResponseEntity.ok("Order completed");
+                return "Order completed";
             }
         } catch (NullPointerException e) {
             throw new NoSuchElementException("No Order present with given ID: "
