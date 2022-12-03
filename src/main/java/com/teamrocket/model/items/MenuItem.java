@@ -1,4 +1,4 @@
-package com.teamrocket.model;
+package com.teamrocket.model.items;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class RestaurantAcceptDeclineRequest {
-    int orderId;
-    int restaurantId;
-    String msg;
+public class MenuItem {
+    private Integer id;
+    private String name;
+    private String description;
+    private double price;
 }

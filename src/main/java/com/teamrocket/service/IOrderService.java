@@ -1,7 +1,7 @@
 package com.teamrocket.service;
 
 import com.teamrocket.entity.Order;
-import com.teamrocket.model.RestaurantAcceptDeclineRequest;
+import com.teamrocket.model.OrderActionRequest;
 import com.teamrocket.model.RestaurantOrder;
 import org.springframework.http.ResponseEntity;
 
@@ -11,17 +11,17 @@ public interface IOrderService {
 
     void handleNewOrderCamunda(RestaurantOrder order);
 
-    void sendNewOrderToRestaurant(RestaurantOrder order);
+   // void sendNewOrderToRestaurant(RestaurantOrder order);
 
     void sendPendingOrdersToRestaurant(int restaurantId);
 
-    ResponseEntity acceptOrder(RestaurantAcceptDeclineRequest acceptRequest) throws Exception;
+    ResponseEntity acceptOrder(OrderActionRequest acceptRequest) throws Exception;
 
-    ResponseEntity cancelOrder(RestaurantAcceptDeclineRequest acceptRequest);
+    ResponseEntity cancelOrder(OrderActionRequest acceptRequest);
 
-    Order saveNewOrder(RestaurantOrder restaurantOrder);
+    RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order);
 
-    double calculateOrdersTotalPrice(RestaurantOrder restaurantOrder);
+    ResponseEntity orderCollected(OrderActionRequest completeRequest);
 
-    Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder);
+    Object orderReady(OrderActionRequest readyRequest);
 }
