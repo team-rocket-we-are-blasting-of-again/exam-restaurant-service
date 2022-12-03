@@ -1,9 +1,6 @@
 package com.teamrocket.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -16,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Restaurant {
 
     private static final long serialVersionUID = 1L;
@@ -34,6 +32,11 @@ public class Restaurant {
     private Set<Item> menu = new HashSet<>();
     @Column(columnDefinition = "boolean default false")
     private boolean open;
+    private String email;
+    private String phone;
+    private boolean archived;
+    private int addressId;
+    private int userId;
 
     @ManyToMany
     private List<Category> categories;
