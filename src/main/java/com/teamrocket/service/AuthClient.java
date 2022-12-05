@@ -21,7 +21,6 @@ public class AuthClient {
     @Autowired
     ManagedChannel managedChannel;
 
-
     public int registerRestaurantUser(Restaurant restaurant) {
         LOGGER.info("gRPC Channel: {} ", managedChannel.toString());
 

@@ -6,9 +6,6 @@ import com.teamrocket.proto.Order;
 import com.teamrocket.proto.OrderItem;
 import com.teamrocket.proto.RestaurantGrpc.RestaurantImplBase;
 import com.teamrocket.repository.RestaurantRepo;
-import io.grpc.Metadata;
-import io.grpc.protobuf.ProtoUtils;
-import io.grpc.reflection.v1alpha.ErrorResponse;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.slf4j.Logger;
@@ -45,7 +42,6 @@ public class RestaurantManagement extends RestaurantImplBase {
         }
     }
 
-
     private Order calculateOrdersTotalPrice(Order order) {
         double totalPrice = 0;
 
@@ -70,7 +66,6 @@ public class RestaurantManagement extends RestaurantImplBase {
 
     private Map<Integer, Double> mapItemPrice(Order order) {
         Set<Item> menu = restaurantRepo.findByIdWithMenu(order.getRestaurantId()).getMenu();
-        LOGGER.info("Menu by restaurant id {} is {} long and is {}", order.getRestaurantId(), menu.size(), menu);
         Map<Integer, Double> itemPriceMap = new HashMap<>();
         menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
         return itemPriceMap;

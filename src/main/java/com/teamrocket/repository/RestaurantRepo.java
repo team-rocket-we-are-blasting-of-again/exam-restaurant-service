@@ -1,7 +1,6 @@
 package com.teamrocket.repository;
 
 import com.teamrocket.entity.Restaurant;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +10,6 @@ import javax.transaction.Transactional;
 
 @Repository
 @Transactional
-@Qualifier("RestaurantRepository")
 public interface RestaurantRepo extends JpaRepository<Restaurant, Integer> {
 
     @Query("SELECT r FROM Restaurant r LEFT JOIN FETCH r.menu m WHERE r.id = ?1")

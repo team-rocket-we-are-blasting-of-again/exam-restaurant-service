@@ -4,7 +4,6 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.model.OrderActionRequest;
 import com.teamrocket.model.RegisterRestaurantRequest;
-import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
