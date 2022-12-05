@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest
 @ActiveProfiles("unit")
 class RestaurantServiceTest {
@@ -59,7 +61,7 @@ class RestaurantServiceTest {
 
     }
 
-//    @Test
+    //    @Test
 //    void createNewRestaurantTest() {
 //        RegisterRestaurantRequest request = new RegisterRestaurantRequest();
 //        request.setName(restaurantName);
@@ -70,7 +72,6 @@ class RestaurantServiceTest {
 //        System.out.println(restaurantId);
 //        assertTrue(restaurantService.createNewRestaurant(request).getName().equals(restaurantName));
 //    }
-
     @Test
     void addNewMenuTest() {
         ItemsRequest request = new ItemsRequest(restaurantId, menu);
@@ -173,6 +174,7 @@ class RestaurantServiceTest {
 
     }
 
+    @DirtiesContext()
     @Test
     void closeRestaurantTest() throws Exception {
         assertTrue(restaurantService.closeRestaurant(restaurantId).equals("Restaurant sat to CLOSED"));

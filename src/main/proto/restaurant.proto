@@ -34,6 +34,7 @@ message Order {
 message OrderItem {
   int32 menuItemId = 1;
   int32 quantity = 2;
+  double price = 3;
 
 }
 
