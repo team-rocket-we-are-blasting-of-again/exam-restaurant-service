@@ -37,11 +37,4 @@ public class Beans {
                 .usePlaintext()
                 .build();
     }
-
-    @Bean
-    OrderService orderService() {
-        final OrderService orderService = new OrderService();
-        return orderService;
-    }
-
 }

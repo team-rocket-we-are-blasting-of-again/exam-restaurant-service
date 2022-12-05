@@ -20,7 +20,7 @@ import java.util.Set;
 
 @GrpcService
 public class RestaurantManagement extends RestaurantImplBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantManagement.class);
 
     @Autowired
     private RestaurantRepo restaurantRepo;

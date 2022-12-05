@@ -23,7 +23,6 @@ public class AuthClient {
 
     public int registerRestaurantUser(Restaurant restaurant) {
         LOGGER.info("gRPC Channel: {} ", managedChannel.toString());
-
         CreateUserResponse response = userBlockingStub.createUser(CreateUserRequest
                 .newBuilder()
                 .setRole(Role.RESTAURANT)
@@ -31,7 +30,6 @@ public class AuthClient {
                 .setEmail(restaurant.getEmail())
                 .build());
 
-        managedChannel.shutdown();
         LOGGER.info("New user with id {} created", response.getId());
         return response.getId();
     }
