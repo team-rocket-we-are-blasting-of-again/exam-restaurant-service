@@ -55,9 +55,14 @@ public class RestaurantManagement extends RestaurantImplBase {
         }
         for (OrderItem orderItem : order.getItemsList()) {
             orderItem.newBuilderForType().setPrice(orderItem.getMenuItemId()).build();
-            totalPrice += (
-                    itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
-            );
+            try {
+                totalPrice += (
+                        itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
+                );
+            } catch (NullPointerException e) {
+                throw new NoSuchElementException("No item with id " + orderItem.getMenuItemId()
+                        + " on menu of restaurant with id " + order.getRestaurantId());
+            }
         }
         return order.newBuilderForType().setTotalPrice(totalPrice).build();
 
