@@ -56,7 +56,6 @@ public class RestaurantOrder {
         });
     }
 
-
     @Override
     public String toString() {
         StringBuilder itemsStr = new StringBuilder("[");
