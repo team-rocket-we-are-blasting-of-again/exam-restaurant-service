@@ -1,18 +1,13 @@
 package com.teamrocket;
 
-import com.teamrocket.server.RestaurantManagerServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.teamrocket"})
+
 public class RestaurantServiceApplication {
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(RestaurantServiceApplication.class, args);
-        RestaurantManagerServer server = new RestaurantManagerServer();
-        server.startServer();
-        server.blockUntilShutdown();
-
     }
-
 }

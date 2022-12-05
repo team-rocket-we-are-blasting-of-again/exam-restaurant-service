@@ -116,7 +116,6 @@ public class OrderService implements IOrderService {
                             + item.getMenuItemId()));
             items.put(itemEntity, item.getQuantity());
         }
-        restaurantOrder.setTotalPrice(calculateOrdersTotalPrice(restaurantOrder));
         Order order = new Order(restaurantOrder, items);
         order = orderRepo.save(order);
         LOGGER.info("SAVED ORDER WITH ID: {}", restaurantOrder.getId());
@@ -222,12 +221,6 @@ public class OrderService implements IOrderService {
         }
     }
 
-    @Override
-    public RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order) {
-        order.setTotalPrice(calculateOrdersTotalPrice(order));
-        return order;
-    }
-
     private void completeCamundaTask(int orderId, boolean accepted) {
         try {
             CamundaOrderTask task = camundaRepo.findById(orderId).
@@ -263,25 +256,6 @@ public class OrderService implements IOrderService {
         Variables variables = new Variables(orderAccepted);
         TaskVariables taskVariables = new TaskVariables(workerId, variables);
         return GSON.toJson(taskVariables, TaskVariables.class);
-    }
-
-    private double calculateOrdersTotalPrice(RestaurantOrder restaurantOrder) {
-        double totalPrice = 0;
-
-        Map<Integer, Double> itemPriceMap = mapItemPrice(restaurantOrder);
-        for (OrderItem orderItem : restaurantOrder.getItems()) {
-            totalPrice += (
-                    itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
-            );
-        }
-        return totalPrice;
-    }
-
-    private Map<Integer, Double> mapItemPrice(RestaurantOrder restaurantOrder) {
-        Set<Item> menu = restaurantRepo.findByIdWithMenu(restaurantOrder.getRestaurantId()).getMenu();
-        Map<Integer, Double> itemPriceMap = new HashMap<>();
-        menu.forEach(item -> itemPriceMap.put(item.getId(), item.getPrice()));
-        return itemPriceMap;
     }
 }
 

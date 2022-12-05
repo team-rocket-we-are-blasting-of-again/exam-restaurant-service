@@ -2,6 +2,7 @@ package com.teamrocket.config;
 
 import com.teamrocket.proto.UserGrpc;
 import com.teamrocket.proto.UserGrpc.UserBlockingStub;
+import com.teamrocket.service.OrderService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,4 +37,11 @@ public class Beans {
                 .usePlaintext()
                 .build();
     }
+
+    @Bean
+    OrderService orderService() {
+        final OrderService orderService = new OrderService();
+        return orderService;
+    }
+
 }

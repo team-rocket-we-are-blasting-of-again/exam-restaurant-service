@@ -96,11 +96,6 @@ public class RestaurantController {
         return ResponseEntity.ok(orderService.orderCollected(completeRequest));
     }
 
-    @GetMapping("totalprice")
-    public ResponseEntity calculateTotalPrice(@RequestBody RestaurantOrder order) {
-        return ResponseEntity.ok(orderService.getOrderWithTotalPrice(order));
-    }
-
     @GetMapping("orders")
     public ResponseEntity getRestaurantsOrdersByStatus(@RequestParam("restaurant") int id,
                                                        @RequestParam("status") List<String> statusList) {
