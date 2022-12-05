@@ -6,6 +6,9 @@ import com.teamrocket.proto.Order;
 import com.teamrocket.proto.OrderItem;
 import com.teamrocket.proto.RestaurantGrpc.RestaurantImplBase;
 import com.teamrocket.repository.RestaurantRepo;
+import io.grpc.Metadata;
+import io.grpc.protobuf.ProtoUtils;
+import io.grpc.reflection.v1alpha.ErrorResponse;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.slf4j.Logger;
@@ -32,14 +35,14 @@ public class RestaurantManagement extends RestaurantImplBase {
             order = calculateOrdersTotalPrice(order);
             responseObserver.onNext(order);
             responseObserver.onCompleted();
-            LOGGER.info("Returned order: {}, {}, {}", order.getRestaurantId(), order.getTotalPrice(), order.getItemsList().size());
+            LOGGER.info("Returned order: {}, {}, {}",
+                    order.getRestaurantId(), order.getTotalPrice(), order.getItemsList().size());
 
         } catch (NoSuchElementException e) {
-            System.out.println();
-            responseObserver.onError(e);
-
+            LOGGER.warn(e.getMessage());
+            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage()).asRuntimeException());
         }
-
     }
 
 
