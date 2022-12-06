@@ -24,6 +24,19 @@ message CreateUserRequest {
 message CreateUserResponse {
   int32 id = 1;
 }
+message Order {
+  int32 restaurantId = 1;
+  repeated OrderItem items = 2;
+  double totalPrice = 3;
+
+}
+
+message OrderItem {
+  int32 menuItemId = 1;
+  int32 quantity = 2;
+  double price = 3;
+
+}
 
 enum Role {
   CUSTOMER = 0;
@@ -37,4 +50,8 @@ service Verify {
 
 service User {
   rpc createUser (CreateUserRequest) returns (CreateUserResponse);
+}
+
+service Restaurant {
+  rpc calculateOrderPrice (Order) returns (Order);
 }

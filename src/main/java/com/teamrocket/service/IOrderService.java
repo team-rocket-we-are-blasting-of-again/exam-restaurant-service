@@ -13,8 +13,6 @@ public interface IOrderService {
 
     String restaurantCancelsOrder(OrderActionRequest acceptRequest);
 
-    RestaurantOrder getOrderWithTotalPrice(RestaurantOrder order);
-
     String orderCollected(OrderActionRequest completeRequest);
 
     Object orderReady(OrderActionRequest readyRequest);

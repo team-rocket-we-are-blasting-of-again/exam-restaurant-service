@@ -4,7 +4,6 @@ import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.model.OrderActionRequest;
 import com.teamrocket.model.RegisterRestaurantRequest;
-import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.model.items.ItemsRequest;
 import com.teamrocket.service.OrderService;
 import com.teamrocket.service.RestaurantService;
@@ -94,11 +93,6 @@ public class RestaurantController {
     @PatchMapping("complete")
     public ResponseEntity orderCompleted(@RequestBody OrderActionRequest completeRequest) {
         return ResponseEntity.ok(orderService.orderCollected(completeRequest));
-    }
-
-    @GetMapping("totalprice")
-    public ResponseEntity calculateTotalPrice(@RequestBody RestaurantOrder order) {
-        return ResponseEntity.ok(orderService.getOrderWithTotalPrice(order));
     }
 
     @GetMapping("orders")
