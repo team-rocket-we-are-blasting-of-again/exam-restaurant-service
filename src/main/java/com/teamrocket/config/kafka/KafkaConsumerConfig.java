@@ -48,10 +48,10 @@ public class KafkaConsumerConfig {
         StringJsonMessageConverter converter = new StringJsonMessageConverter();
         DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
         typeMapper.setTypePrecedence(Jackson2JavaTypeMapper.TypePrecedence.TYPE_ID);
-        typeMapper.addTrustedPackages("com.baeldung.spring.kafka");
+        typeMapper.addTrustedPackages("com.teamrocket.model");
         Map<String, Class<?>> mappings = new HashMap<>();
         mappings.put("restaurantorder", RestaurantOrder.class);
-        mappings.put("orderItem", OrderItem.class);
+        mappings.put("orderitem", OrderItem.class);
         typeMapper.setIdClassMapping(mappings);
         converter.setTypeMapper(typeMapper);
         return converter;
