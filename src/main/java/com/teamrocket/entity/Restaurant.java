@@ -37,6 +37,7 @@ public class Restaurant {
     private boolean archived;
     private int addressId;
     private int userId;
+    private String areaId;
 
     @ManyToMany
     private List<Category> categories;

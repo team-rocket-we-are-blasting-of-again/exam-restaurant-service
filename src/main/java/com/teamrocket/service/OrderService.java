@@ -4,12 +4,11 @@ import com.google.gson.Gson;
 import com.teamrocket.entity.CamundaOrderTask;
 import com.teamrocket.entity.Item;
 import com.teamrocket.entity.Order;
+import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.enums.Topic;
 import com.teamrocket.model.*;
-import com.teamrocket.model.camunda.OrderAccepted;
-import com.teamrocket.model.camunda.TaskVariables;
-import com.teamrocket.model.camunda.Variables;
+import com.teamrocket.model.camunda.*;
 import com.teamrocket.repository.CamundaRepo;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
@@ -91,7 +90,7 @@ public class OrderService implements IOrderService {
 
             kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), new OrderCancelled(restaurantOrder.getId(), reason));
             try {
-                completeCamundaTask(restaurantOrder.getId(), false);
+                completeCamundaTask(restaurantOrder.getId(), false, new DeliveryTask());
             } catch (Exception c) {
                 LOGGER.info("No camunda task for order id {}", restaurantOrder.getId());
             }
@@ -101,7 +100,7 @@ public class OrderService implements IOrderService {
             reason = format("Order with system_order_id %d already exists", restaurantOrder.getId());
             kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), new OrderCancelled(restaurantOrder.getId(), reason));
             try {
-                completeCamundaTask(restaurantOrder.getId(), false);
+                completeCamundaTask(restaurantOrder.getId(), false, new DeliveryTask());
             } catch (Exception c) {
                 LOGGER.info("No camunda task for order id {}", restaurantOrder.getId());
             }
@@ -141,6 +140,7 @@ public class OrderService implements IOrderService {
                 acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
         try {
             Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
+
             if (!order.getStatus().equals(OrderStatus.PENDING)) {
                 throw new ResponseStatusException(HttpStatus.valueOf(410), "Order most likely has already been accepted");
             } else {
@@ -148,7 +148,12 @@ public class OrderService implements IOrderService {
                 orderRepo.save(order);
                 OrderKafkaMsg kafkaMsg = new OrderKafkaMsg(order);
                 kafkaTemplate.send(Topic.ORDER_ACCEPTED.toString(), kafkaMsg);
-                completeCamundaTask(acceptRequest.getOrderId(), true);
+
+                DeliveryTask deliveryTask = getDeliverData(
+                        acceptRequest.getRestaurantId(),
+                        acceptRequest.getOrderId(),
+                        calculatePickupTime(acceptRequest.getPrepTime()));
+                completeCamundaTask(acceptRequest.getOrderId(), true, deliveryTask);
                 LOGGER.info("Order with id {} Accepted", acceptRequest.getOrderId());
                 return "Order in Progress";
             }
@@ -156,6 +161,12 @@ public class OrderService implements IOrderService {
             throw new NoSuchElementException("No Order present with given ID: "
                     + acceptRequest.getOrderId());
         }
+    }
+
+    private long calculatePickupTime(int minutes) {
+        Calendar date = Calendar.getInstance();
+        long timeInSecs = date.getTimeInMillis();
+        return timeInSecs + (minutes * 60 * 1000);
     }
 
     @Override
@@ -168,7 +179,7 @@ public class OrderService implements IOrderService {
                 orderRepo.save(order);
                 kafkaTemplate.send(Topic.ORDER_CANCELED.toString(), orderCancelled);
                 try {
-                    completeCamundaTask(cancelRequest.getOrderId(), false);
+                    completeCamundaTask(cancelRequest.getOrderId(), false, new DeliveryTask());
                 } catch (Exception e) {
                     LOGGER.info("No camunda task for order id {}", cancelRequest.getOrderId());
                 }
@@ -221,7 +232,7 @@ public class OrderService implements IOrderService {
         }
     }
 
-    private void completeCamundaTask(int orderId, boolean accepted) {
+    private void completeCamundaTask(int orderId, boolean accepted, DeliveryTask deliveryTask) {
         try {
             CamundaOrderTask task = camundaRepo.findById(orderId).
                     orElseThrow(() -> new NoSuchElementException("No task defined for orderId: " + orderId));
@@ -232,7 +243,7 @@ public class OrderService implements IOrderService {
                     .append("/complete")
                     .toString();
 
-            String requestBody = buildTaskVariables(task.getWorkerId(), accepted);
+            String requestBody = buildTaskVariables(task.getWorkerId(), accepted, deliveryTask);
 
             LOGGER.info("FIRE TASK URL: {}", url);
             HttpHeaders headers = new HttpHeaders();
@@ -251,11 +262,23 @@ public class OrderService implements IOrderService {
         }
     }
 
-    private String buildTaskVariables(String workerId, boolean accepted) {
+    private String buildTaskVariables(String workerId, boolean accepted, DeliveryTask deliveryTask) {
         OrderAccepted orderAccepted = new OrderAccepted(accepted);
-        Variables variables = new Variables(orderAccepted);
+        Variables variables = new Variables(orderAccepted, deliveryTask);
         TaskVariables taskVariables = new TaskVariables(workerId, variables);
         return GSON.toJson(taskVariables, TaskVariables.class);
+    }
+
+    private DeliveryTask getDeliverData(int restaurantId, int orderId, long pickupTime) {
+        DeliveryTaskValue deliveryTask = new DeliveryTaskValue();
+        Restaurant restaurant = restaurantRepo.findById(restaurantId)
+                .orElseThrow(() -> new NoSuchElementException("Could not find Restaurant with id " + restaurantId));
+        deliveryTask.setOrderId(orderId);
+        deliveryTask.setRestaurantAddressId(restaurant.getAddressId());
+        deliveryTask.setAreaId(restaurant.getAreaId());
+        deliveryTask.setRestaurantName(restaurant.getName());
+        deliveryTask.setPickupTime(pickupTime);
+        return DeliveryTask.builder().value(deliveryTask).build();
     }
 }
 

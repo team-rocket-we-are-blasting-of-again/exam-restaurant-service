@@ -27,7 +27,10 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(JsonDeserializer.TYPE_MAPPINGS,
-                "restaurantorder:com.teamrocket.model.RestaurantOrder, orderitem:com.teamrocket.model.OrderItem, ordercancelled:com.teamrocket.model.OrderCancelled");
+                "restaurantorder:com.teamrocket.model.RestaurantOrder, " +
+                        "orderitem:com.teamrocket.model.OrderItem, " +
+                        "ordercancelled:com.teamrocket.model.OrderCancelled," +
+                        "orderkafkamsg:com.teamrocket.model.OrderKafkaMsg");
 
         return props;
     }

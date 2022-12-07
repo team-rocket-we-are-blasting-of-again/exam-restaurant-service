@@ -9,7 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Variables {
-    OrderAccepted order_accepted;
-    DeliveryTask delivery_task;
+public class DeliveryTaskValue {
+    int orderId;
+    String restaurantName;
+    int restaurantAddressId;
+    String areaId;
+    long pickupTime;
 }

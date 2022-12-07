@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderActionRequest {
+    public int prepTime;
     int orderId;
     int restaurantId;
     String msg;

@@ -11,6 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("integration")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-public class  RestaurantRepoTest {
+public class RestaurantRepoTest {
     @Autowired
     private RestaurantRepo restaurantRepo;
 
     @Test
     void saveRestaurantTest() {
-        Restaurant r = restaurantRepo.save(new Restaurant("MAM"));
+        Restaurant r = restaurantRepo.save(Restaurant.builder().name("MAM").addressId(55).areaId("CPH").build());
         assertTrue(r.getId() == 1);
     }
 
