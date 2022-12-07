@@ -22,6 +22,9 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "legacy_id", unique = true)
+    private Integer legacyId;
+
     @Column(name = "restaurant_name",
             columnDefinition = "TEXT",
             nullable = false)

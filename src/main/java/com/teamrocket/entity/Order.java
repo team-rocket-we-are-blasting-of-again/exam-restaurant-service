@@ -1,5 +1,7 @@
 package com.teamrocket.entity;
 
+import static java.util.Objects.nonNull;
+
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.RestaurantOrder;
 import lombok.AllArgsConstructor;
@@ -21,15 +23,18 @@ import java.util.Map;
 public class Order {
     private static final long serialVersionUID = 1L;
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private Integer legacyId;
+
     @Column(unique = true)
     private int systemOrderId;
 
-    private int restaurantId;
+    private Integer restaurantId;
+
+    private Integer legacyRestaurantId;
 
     @ElementCollection(fetch = FetchType.EAGER)
 

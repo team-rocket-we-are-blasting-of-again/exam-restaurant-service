@@ -19,6 +19,10 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(name = "legacy_id", unique = true)
+    private Integer legacyId;
+
     private String name;
     private String category;
     @Column(columnDefinition = "TEXT")
