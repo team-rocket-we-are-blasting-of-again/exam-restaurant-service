@@ -24,4 +24,6 @@ public class Item {
     @Column(columnDefinition = "TEXT")
     private String description;
     private double price;
+    private int legacyId;
+
 }

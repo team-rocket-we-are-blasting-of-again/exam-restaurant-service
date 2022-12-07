@@ -38,6 +38,7 @@ public class Restaurant {
     private int addressId;
     private int userId;
     private String areaId;
+    private int legacyId;
 
     @ManyToMany
     private List<Category> categories;

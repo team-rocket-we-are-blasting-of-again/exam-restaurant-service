@@ -2,8 +2,6 @@ package com.teamrocket.model.camunda;
 
 import lombok.*;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
