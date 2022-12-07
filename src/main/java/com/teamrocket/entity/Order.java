@@ -27,6 +27,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "legacy_id", unique = true)
     private Integer legacyId;
 
     @Column(unique = true)
