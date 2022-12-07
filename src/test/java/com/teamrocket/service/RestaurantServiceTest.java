@@ -44,8 +44,8 @@ class RestaurantServiceTest {
         restaurantName = "Di Amora";
         restaurantId = 666;
         menu = new HashSet<>();
-        menu.add(new Item(null, "Cheese-Burger", "Burger", "juicy with onion rings", 110.0));
-        menu.add(new Item(null, "Bacon-Burger", "Burger", "juicy with onion rings", 110.0));
+        menu.add(Item.builder().name("Cheese-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
+        menu.add(Item.builder().name("Bacon-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
         restaurant = new Restaurant(restaurantName);
         restaurant.setId(restaurantId);
 
