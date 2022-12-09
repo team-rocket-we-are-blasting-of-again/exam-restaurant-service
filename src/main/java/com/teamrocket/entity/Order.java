@@ -57,14 +57,6 @@ public class Order {
     @Column(name = "quantity")
     private Map<Item, Integer> orderItems = new HashMap<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "legacy_order_items", joinColumns = {
-        @JoinColumn(name = "legacy_order_id", referencedColumnName = "legacy_id"),
-    })
-    @MapKeyJoinColumn(name = "legacy_item_id")
-    @Column(name = "legacy_quantity")
-    private Map<Item, Integer> legacyOrderItems = new HashMap<>();
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 

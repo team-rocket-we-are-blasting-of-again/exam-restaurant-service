@@ -25,6 +25,9 @@ public class Item {
     @Column(name = "legacy_id", unique = true)
     private Integer legacyId;
 
+    @Column(name = "legacy_restaurant_id", unique = true)
+    private Integer legacyRestaurantId;
+
     private String name;
     private String category;
     @Column(columnDefinition = "TEXT")

@@ -50,10 +50,6 @@ public class Restaurant implements Serializable {
     @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
     private Set<Item> menu = new HashSet<>();
 
-    @OneToMany(targetEntity = Item.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "legacy_restaurant_id", referencedColumnName = "legacy_id")
-    private Set<Item> legacyMenu = new HashSet<>();
-
     @Column(columnDefinition = "boolean default false")
     private boolean open;
     private String email;
