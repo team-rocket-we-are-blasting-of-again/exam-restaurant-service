@@ -278,7 +278,7 @@ public class OrderService implements IOrderService {
         deliveryTask.setAreaId(restaurant.getAreaId());
         deliveryTask.setRestaurantName(restaurant.getName());
         deliveryTask.setPickupTime(pickupTime);
-        return DeliveryTask.builder().value(deliveryTask).build();
+        return DeliveryTask.builder().value(deliveryTask.toJsonString()).build();
     }
 }
 
