@@ -1,6 +1,5 @@
 package com.teamrocket.service;
 
-import com.teamrocket.control.RestaurantController;
 import com.teamrocket.entity.Item;
 import com.teamrocket.proto.Order;
 import com.teamrocket.proto.OrderItem;
@@ -12,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 
 @GrpcService
@@ -27,7 +23,8 @@ public class RestaurantManagement extends RestaurantImplBase {
 
     @Override
     public void calculateOrderPrice(Order order, StreamObserver<Order> responseObserver) {
-        LOGGER.info("Received order: {}, {}, {}", order.getRestaurantId(), order.getTotalPrice(), order.getItemsList().size());
+        LOGGER.info("Received order: restid {}, total price{}, item size{}", order.getRestaurantId(), order.getTotalPrice(), order.getItemsList().size());
+        LOGGER.info("items {}", order.getItemsList());
         try {
             order = calculateOrdersTotalPrice(order);
             responseObserver.onNext(order);
@@ -44,23 +41,41 @@ public class RestaurantManagement extends RestaurantImplBase {
 
     private Order calculateOrdersTotalPrice(Order order) {
         double totalPrice = 0;
-
+        int restaurantId = order.getRestaurantId();
         Map<Integer, Double> itemPriceMap = mapItemPrice(order);
+        LOGGER.info("PRICES FROM DB: {}", itemPriceMap);
         if (itemPriceMap.size() == 0) {
             throw new NoSuchElementException("No menu for restaurant id " + order.getRestaurantId());
         }
+        List<OrderItem> newItems = new ArrayList<>();
         for (OrderItem orderItem : order.getItemsList()) {
-            orderItem.newBuilderForType().setPrice(orderItem.getMenuItemId()).build();
             try {
-                totalPrice += (
-                        itemPriceMap.get(orderItem.getMenuItemId()) * orderItem.getQuantity()
-                );
+                int id = orderItem.getMenuItemId();
+                int quantity = orderItem.getQuantity();
+                double itemPrice = itemPriceMap.get(orderItem.getMenuItemId());
+
+                orderItem = orderItem.newBuilderForType()
+                        .setPrice(itemPrice)
+                        .setMenuItemId(id)
+                        .setQuantity(quantity)
+                        .build();
+                newItems.add(orderItem);
+
+                totalPrice += (itemPrice * quantity);
             } catch (NullPointerException e) {
                 throw new NoSuchElementException("No item with id " + orderItem.getMenuItemId()
                         + " on menu of restaurant with id " + order.getRestaurantId());
             }
         }
-        return order.newBuilderForType().setTotalPrice(totalPrice).build();
+        LOGGER.info("Calculated total price {}", totalPrice);
+        Iterable<OrderItem> iterator = newItems;
+        order = order.newBuilderForType()
+                .setTotalPrice(totalPrice)
+                .setRestaurantId(restaurantId)
+                .addAllItems(iterator)
+                .build();
+        LOGGER.info("order total price: {}, order first item price: {}", order.getTotalPrice(), order.getItems(0).getPrice());
+        return order;
 
     }
 
