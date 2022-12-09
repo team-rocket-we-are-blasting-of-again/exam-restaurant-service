@@ -1,5 +1,7 @@
 package com.teamrocket.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,8 +16,9 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-public class Restaurant {
+public class Restaurant implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
