@@ -2,6 +2,7 @@ package com.teamrocket.entity;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +72,7 @@ public class Restaurant implements Serializable {
     private Integer legacyUserId;
 
     @ManyToMany
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
 
     public Restaurant(String name) {
         this.name = name;
