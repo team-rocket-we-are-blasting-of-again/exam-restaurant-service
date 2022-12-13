@@ -78,7 +78,7 @@ public class OrderService implements IOrderService {
         String reason = "";
         try {
             Order orderEntity = saveNewOrder(restaurantOrder);
-            LOGGER.info("New order saved with system_order id: {} and restaurant_order_id",
+            LOGGER.info("New order saved with system_order id: {} and restaurant_order_id: {}",
                     orderEntity.getSystemOrderId(), orderEntity.getId());
 
             simpMessagingTemplate.convertAndSend("/restaurant/"
