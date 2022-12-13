@@ -1,1 +1,1 @@
-# Restaurant MicroService
+# Restaurant Microservice
