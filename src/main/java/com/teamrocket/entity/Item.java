@@ -1,10 +1,6 @@
 package com.teamrocket.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -33,6 +29,5 @@ public class Item {
     @Column(columnDefinition = "TEXT")
     private String description;
     private double price;
-    private int legacyId;
 
 }
