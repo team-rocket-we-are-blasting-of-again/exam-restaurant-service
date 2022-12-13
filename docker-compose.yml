@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+  postgres_db:
+    image: postgres:14.1-alpine
+    restart: always
+    hostname: postgres
+    container_name: exam_restaurant_service_postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Qwerty!234
+      - POSTGRES_DB=restaurants
+    ports:
+      - '6969:5432'
+  camunda-postgres:
+    container_name: camunda_postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  camunda:
+    container_name: camunda
+    image: tobiaszimmer/exam-camunda-server:development-0.0.3
+    ports:
+      - "8080:8080"
+    environment:
+      DB_CONNECTION_STR: jdbc:postgresql://camunda-postgres:5432/postgres
+      DB_USERNAME: postgres
+      DB_POSTGRES: postgres
+      CAMUNDA_ADMIN_USERNAME: demo
+      CAMUNDA_ADMIN_PASSWORD: demo
+      CAMUNDA_ADMIN_EMAIL: test@test.dk
+      CAMUNDA_ADMIN_FIRSTNAME: admin
+      CAMUNDA_ADMIN_LASTNAME: admin
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+  kafka:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+
+volumes:
+  zookeeper_data:
+  kafka_data:

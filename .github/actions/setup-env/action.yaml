@@ -7,9 +7,15 @@ runs:
     # Uncomment if you are using a docker compose to setup your environment
     # - name: Setup environment
     #   run: |
-    #     docker-compose docker-compose.yaml up -d
+    #     docker-compose  up -d
     #     sleep 5
 
+    - name: Setup environment
+      shell:
+      run: |
+        docker-compose  up -d
+        sleep 5
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
@@ -23,3 +29,4 @@ runs:
         java-version: "17"
         distribution: "temurin"
         cache: maven
+
