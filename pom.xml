@@ -420,7 +420,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.17.0</version>
+                <version>3.19.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/teamrocket/proto/*</exclude>
+                    </excludes>
+                    <excludeFromFailureFile>exclude-pmd.properties</excludeFromFailureFile>
+                </configuration>
             </plugin>
         </plugins>
     </reporting>
