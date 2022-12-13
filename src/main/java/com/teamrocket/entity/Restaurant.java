@@ -1,26 +1,14 @@
 package com.teamrocket.entity;
 
+import lombok.*;
+
+import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity(name = "Restaurant")
 @Table(name = "restaurants")
@@ -42,8 +30,8 @@ public class Restaurant implements Serializable {
     private Integer legacyId;
 
     @Column(name = "restaurant_name",
-        columnDefinition = "TEXT",
-        nullable = false)
+            columnDefinition = "TEXT",
+            nullable = false)
     private String name;
 
     @OneToMany(targetEntity = Item.class, cascade = CascadeType.ALL)
@@ -60,7 +48,6 @@ public class Restaurant implements Serializable {
     private Integer addressId;
 
     private String areaId;
-    private int legacyId;
 
     @Column(name = "user_id", unique = true)
     private Integer userId;
