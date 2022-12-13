@@ -60,6 +60,7 @@ public class Restaurant implements Serializable {
     private Integer addressId;
 
     private String areaId;
+    private int legacyId;
 
     @Column(name = "user_id", unique = true)
     private Integer userId;

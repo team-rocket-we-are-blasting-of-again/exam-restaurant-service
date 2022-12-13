@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RestaurantRepoTest {
     @Autowired
     private RestaurantRepo restaurantRepo;
-
     @Test
     void saveRestaurantTest() {
         Restaurant r = restaurantRepo.save(Restaurant.builder().name("MAM").addressId(55).areaId("CPH").build());
@@ -36,9 +35,9 @@ public class RestaurantRepoTest {
         Set<Item> items = new HashSet<>();
         Restaurant r = new Restaurant("MAM");
 
-
         items.add(Item.builder().name("Cheese-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
         items.add(Item.builder().name("Bacon-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
+
         r.setMenu(items);
         r = restaurantRepo.save(r);
         assertTrue(restaurantRepo.findByIdWithMenu(r.getId()).getMenu().size() == items.size());

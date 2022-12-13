@@ -46,6 +46,7 @@ class RestaurantServiceTest {
         menu = new HashSet<>();
         menu.add(Item.builder().name("Cheese-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
         menu.add(Item.builder().name("Bacon-Burger").category("Burger").description("juicy with onion rings").price(110.0).build());
+
         restaurant = new Restaurant(restaurantName);
         restaurant.setId(restaurantId);
 
