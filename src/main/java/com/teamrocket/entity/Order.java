@@ -19,26 +19,30 @@ import java.util.Map;
 @Getter
 @Setter
 public class Order {
-    private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "legacy_id", unique = true)
+    private Integer legacyId;
+
     @Column(unique = true)
     private int systemOrderId;
 
-    private int restaurantId;
+    private Integer restaurantId;
+
+    private Integer legacyRestaurantId;
 
     @ElementCollection(fetch = FetchType.EAGER)
-
-    @CollectionTable(name = "order_items",
-            joinColumns = {@JoinColumn(name = "order_id",
-                    referencedColumnName = "id")})
+    @CollectionTable(name = "order_items", joinColumns = {
+            @JoinColumn(name = "order_id", referencedColumnName = "id"),
+    })
     @MapKeyJoinColumn(name = "item_id")
     @Column(name = "quantity")
-    private Map<Item, Integer> orderItems = new HashMap<Item, Integer>();
+    private Map<Item, Integer> orderItems = new HashMap<>();
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
