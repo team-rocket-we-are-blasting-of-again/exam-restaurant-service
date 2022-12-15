@@ -15,6 +15,12 @@
         "rolesAllowed": []
       },
       {
+        "path": "/restaurant/register",
+        "method": "NONE",
+        "httpMethod": "POST",
+        "rolesAllowed": []
+      },
+      {
         "path": "/restaurant/**",
         "method": "BEARER",
         "rolesAllowed": [
