@@ -35,7 +35,6 @@ public class CamundaTaskHandler implements ExternalTaskHandler {
 
     @Override
     public void execute(ExternalTask externalTask, ExternalTaskService externalTaskService) {
-        LOGGER.info("New TASK {}", externalTask.getId());
 
         CamundaOrder orderRequest =
                 GSON.fromJson(externalTask.getVariableTyped("order").getValue().toString(), CamundaOrder.class);
@@ -55,6 +54,7 @@ public class CamundaTaskHandler implements ExternalTaskHandler {
             }
 
         } catch (NoSuchElementException e) {
+            LOGGER.info("New TASK {}", externalTask.getId());
             camundaRepo.save(task);
             LOGGER.info("Process begins with RestaurantOrder ", restaurantOrder);
 

@@ -21,6 +21,7 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
     @Query("SELECT o.id FROM RestaurantOrder o WHERE o.restaurantId = ?1")
     List<Integer> getOrderIdsByRestaurant(int restaurantId);
 
+    @Query("SELECT o FROM RestaurantOrder o WHERE o.systemOrderId=?1")
     Order findBySystemOrderId(int systemOrderId);
 
     Set<Order> findByRestaurantIdAndStatusIn(int restaurantId, Collection<OrderStatus> status);
