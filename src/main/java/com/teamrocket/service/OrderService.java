@@ -138,10 +138,13 @@ public class OrderService implements IOrderService {
     public String acceptOrder(OrderActionRequest acceptRequest) {
         String msg = format("Order with id %d for restaurant id %d could not be processed",
                 acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
+        LOGGER.info("accept request: {}", acceptRequest);
         try {
             Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
+            LOGGER.info("order for request: {}", order);
 
             if (!order.getStatus().equals(OrderStatus.PENDING)) {
+                LOGGER.info("Order to be accepted has status {} instead of PENDING", order.getStatus());
                 throw new NoSuchElementException("Order most likely has already been accepted");
             } else {
                 order.setStatus(OrderStatus.IN_PROGRESS);
@@ -158,6 +161,7 @@ public class OrderService implements IOrderService {
                 return "Order in Progress";
             }
         } catch (NullPointerException e) {
+            LOGGER.error("No Order with systemOrderId {}", acceptRequest.getOrderId());
             throw new NoSuchElementException("No Order present with given ID: "
                     + acceptRequest.getOrderId());
         }

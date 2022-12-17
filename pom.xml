@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.teamrocket</groupId>
     <artifactId>restaurant-service</artifactId>
-    <version>1.0.3-RELEASE</version>
+    <version>1.0.4-RELEASE</version>
     <name>restaurant-service</name>
     <description>manages restaurant related operations</description>
 
