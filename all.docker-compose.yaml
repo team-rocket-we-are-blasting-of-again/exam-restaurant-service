@@ -1,0 +1,393 @@
+version: "3.9"
+
+services:
+  #Zookeeper Service.
+  zookeeper:
+    image: "bitnami/zookeeper:latest"
+    restart: "no"
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      mtogo:
+
+  #Kafka Service
+  kafka:
+    image: "bitnami/kafka:latest"
+    restart: "no"
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=INTERNAL://:29092,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      zookeeper:
+        condition: service_started
+    networks:
+      mtogo:
+
+  kafka-connect:
+    depends_on:
+      kafka:
+        condition: service_started
+    image: tobiaszimmer/exam-prebuilt-images:kafka-connect-22-08-2022-12-15
+    restart: on-failure
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+    networks:
+      mtogo:
+
+  order_db:
+    image: postgres:latest
+    ports:
+      - "5445:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders
+    networks:
+      mtogo:
+
+  restaurant_db:
+    image: postgres:14.1-alpine
+    restart: always
+    hostname: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Qwerty!234
+      - POSTGRES_DB=restaurants
+    ports:
+      - "6969:5432"
+    networks:
+      mtogo:
+
+  camunda-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5444:5432"
+    networks:
+      mtogo:
+
+  courier-db:
+    image: postgres:14.1-alpine
+    restart: always
+    hostname: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Qwerty!234
+      - POSTGRES_DB=courier
+    ports:
+      - "5434:5432"
+    networks:
+      mtogo:
+
+  customer-postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: customer
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    ports:
+      - "5452:5432"
+    restart: unless-stopped
+    networks:
+      mtogo:
+
+  auth-postgres:
+    image: postgres:15.1-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth
+    networks:
+      mtogo:
+
+  auth:
+    depends_on:
+      auth-postgres:
+        condition: service_started
+      gateway:
+        condition: service_healthy
+    image: tobiaszimmer/exam_auth_service:main-0.1.2
+    restart: on-failure
+    #    ports:
+    #      - "8000:8080"
+    #      - "9000:50051"
+    environment:
+      POSTGRES_HOST: auth-postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: auth
+      TOKEN_DURATION_HOURS: 12
+      HAS_GATEWAY: "false"
+      GRPC_ADDRESS: "0.0.0.0:50051"
+      ROCKET_PORT: "8080"
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+    networks:
+      mtogo:
+
+  gateway:
+    image: tobiaszimmer/exam-api-gateway:main-1.0.4-release
+    ports:
+      - "9999:8080"
+    restart: on-failure
+    healthcheck:
+      test: curl 127.0.0.1:8080/gateway/route | grep Unauthorized || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    environment:
+      GATEWAY_SERVER_PORT: "8080"
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+      GATEWAY_DB_URL: "r2dbc:postgresql://gateway-postgres-db:5432/postgres"
+      GATEWAY_DB_USERNAME: "postgres"
+      GATEWAY_DB_PASSWORD: "postgres"
+      GATEWAY_FLYWAY_URL: "jdbc:postgresql://gateway-postgres-db:5432/postgres"
+      GATEWAY_FLYWAY_USERNAME: "postgres"
+      GATEWAY_FLYWAY_PASSWORD: "postgres"
+      GATEWAY_KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      GATEWAY_AUTH_GRPC_URL: "static://auth:50051"
+    depends_on:
+      gateway-postgres-db:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      mtogo:
+
+  gateway-postgres-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      mtogo:
+
+  camunda:
+    image: tobiaszimmer/exam-camunda-server:main-1.0.1-release
+    healthcheck:
+      test: curl --fail http://127.0.0.1:8080 || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    environment:
+      DB_CONNECTION_STR: "jdbc:postgresql://camunda-db:5432/postgres"
+      DB_USERNAME: "postgres"
+      DB_POSTGRES: "postgres"
+      CAMUNDA_ADMIN_USERNAME: "demo"
+      CAMUNDA_ADMIN_PASSWORD: "demo"
+      CAMUNDA_ADMIN_EMAIL: "test@test.dk"
+      CAMUNDA_ADMIN_FIRSTNAME: "admin"
+      CAMUNDA_ADMIN_LASTNAME: "admin"
+    ports:
+      - "8880:8080"
+    depends_on:
+      camunda-db:
+        condition: service_started
+    networks:
+      mtogo:
+
+  restaurant:
+    depends_on:
+      restaurant_db:
+        condition: service_started
+      camunda:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    image: tobiaszimmer/exam-restaurant-service:feature-fix-1.0.8-release
+    restart: on-failure
+    environment:
+      RESTAURANT_SERVICE_DB: "jdbc:postgresql://restaurant_db:5432/restaurants"
+      RESTAURANT_DB_USER: "postgres"
+      RESTAURANT_DB_PASSWORD: "Qwerty!234"
+      CASE_MANAGEMENT_CAMUNDA_BASE_URL: "http://camunda:8080/engine-rest"
+      KAFKA_BOOTSTRAP_SERVER: "kafka:29092"
+      AUTH_GRPC_HOST: "auth"
+      AUTH_GRPC_PORT: "50051"
+      GRPC_SERVER_PORT: "9791"
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+      SERVER_PORT: "8080"
+    networks:
+      mtogo:
+
+  customer:
+    depends_on:
+      customer-postgres:
+        condition: service_started
+      camunda:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    image: tobiaszimmer/exam-customer-service:kafka_fail-1.0.7-RELEASE
+    restart: on-failure
+    environment:
+      SERVER_PORT: "8012"
+      CAMUNDA_ENGINE_REST: "http://camunda:8080/engine-rest/"
+      CUSTOMER_SERVER_PORT: "8012"
+      CUSTOMER_GRPC_SERVER_PORT: "9012"
+      AUTH_GRPC_URL: "auth:50051"
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+      RESTAURANT_GRPC_URL: "restaurant:9791"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      CUSTOMER_DB_URL: "jdbc:postgresql://customer-postgres:5432/customer"
+      CUSTOMER_DB_USER: "customer"
+      CUSTOMER_DB_PASSWORD: "postgres"
+    networks:
+      mtogo:
+
+  courier:
+    depends_on:
+      courier-db:
+        condition: service_started
+      camunda:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    image: tobiaszimmer/exam-courier-service:cors-1.1.4-RELEASE
+    restart: on-failure
+    environment:
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+      COURIER_SERVICE_PORT: "8080"
+      COURIER_SERVICE_DB: "jdbc:postgresql://courier-db:5432/courier"
+      COURIER_DB_USER: "postgres"
+      COURIER_DB_PASSWORD: "Qwerty!234"
+      COURIER_SERVICE_DDL_MODE: "update"
+      CUSTOMER_GRPC_HOST: "customer"
+      CUSTOMER_GRPC_PORT: "9012"
+      GATEWAY_AUTH_GRPC_URL: "auth:50051"
+      AUTH_GRPC_HOST: "auth"
+      AUTH_GRPC_PORT: "50051"
+      KAFKA_BOOTSTRAP_SERVER: "kafka:29092"
+      CASE_MANAGEMENT_CAMUNDA_BASE_URL: "http://camunda:8080/engine-rest"
+    networks:
+      mtogo:
+
+  order:
+    depends_on:
+      order_db:
+        condition: service_started
+      camunda:
+        condition: service_healthy
+    image: tobiaszimmer/exam-order-service:master-1.0.1-release
+    restart: on-failure
+    environment:
+      GATEWAY_USERNAME: "gate_us"
+      GATEWAY_PASSWORD: "gate_ps"
+      CASE_MANAGEMENT_CAMUNDA_BASE_URL: "http://camunda:8080/engine-rest"
+      CAMUNDA_ENGINE_REST: "http://camunda:8080/engine-rest/"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      ORDER_DB_URL: "jdbc:postgresql://order_db:5432/orders"
+      ORDER_DB_USER: "postgres"
+      ORDER_DB_PASSWORD: "postgres"
+      ORDER_SERVER_PORT: "8080"
+    networks:
+      mtogo:
+
+  payment:
+    depends_on:
+      camunda:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    image: tobiaszimmer/exam-payment-service:main-1.0.0-release
+    restart: on-failure
+    environment:
+      CASE_MANAGEMENT_CAMUNDA_BASE_URL: "http://camunda:8080/engine-rest"
+      SERVER_PORT: "8080"
+    networks:
+      mtogo:
+
+  notification:
+    image: tobiaszimmer/exam-notification-service:master-1.0.0-release
+    restart: on-failure
+    environment:
+      FROM_EMAIL: "my_projects@outlook.dk"
+      FROM_PASSWORD: "kokoSTOPpe"
+      KAFKA_BOOTSTRAP_SERVER: "kafka:29092"
+    networks:
+      mtogo:
+
+  legacy-postgres:
+    image: tobiaszimmer/exam-legacy-system:main-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Qwerty!234
+      POSTGRES_DB: food_delivery
+    networks:
+      mtogo:
+
+  legacy-redis:
+    image: redis:6.2-alpine
+    restart: on-failure
+    ports:
+      - "6379:6379"
+    networks:
+      mtogo:
+
+  legacy-food-to-go:
+    depends_on:
+      legacy-postgres:
+        condition: service_started
+      legacy-redis:
+        condition: service_started
+    image: tobiaszimmer/exam-legacy-system:main-1.0.0
+    restart: on-failure
+    ports:
+      - "9085:9085"
+      - "9080:9080"
+    environment:
+      REDIS_HOST: legacy-redis
+      REDIS_PORT: 6379
+      DATA_SERVICE_URL: http://legacy-food-to-go:9080/
+      DATA_SERVICE_JDBC_URL: jdbc:postgresql://legacy-postgres:5432/food_delivery
+      DATA_SERVICE_POSTGRES_USERNAME: postgres
+      DATA_SERVICE_POSTGRES_PASSWORD: Qwerty!234
+    networks:
+      mtogo:
+
+  legacy-translator:
+    depends_on:
+      kafka:
+        condition: service_started
+    image: tobiaszimmer/exam-legacy-translator:development-0.0.1-snapshot
+    restart: on-failure
+    environment:
+      KAFKA_CONNECT_HOST: kafka-connect
+      KAFKA_CONNECT_PORT: "8083"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      LEGACY_DB_URL: jdbc:postgresql://legacy-postgres:5432/food_delivery
+      LEGACY_DB_USERNAME: postgres
+      LEGACY_DB_PASSWORD: Qwerty!234
+      RESTAURANT_DB_URL: jdbc:postgresql://restaurant_db:5432/restaurants
+      RESTAURANT_DB_USERNAME: postgres
+      RESTAURANT_DB_PASSWORD: Qwerty!234
+      POLL_INTERVAL_MS: "10000"
+    networks:
+      mtogo:
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+
+networks:
+  mtogo:
