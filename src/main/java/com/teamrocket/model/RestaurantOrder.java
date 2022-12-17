@@ -36,7 +36,7 @@ public class RestaurantOrder {
     }
 
     public RestaurantOrder(Order entity) {
-        this.id = entity.getId();
+        this.id = entity.getSystemOrderId();
         this.restaurantId = entity.getRestaurantId();
         this.createdAt = entity.getCreatedAt();
         this.status = entity.getStatus();

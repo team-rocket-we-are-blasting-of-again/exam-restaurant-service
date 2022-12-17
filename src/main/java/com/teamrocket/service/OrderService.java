@@ -142,7 +142,7 @@ public class OrderService implements IOrderService {
             Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
 
             if (!order.getStatus().equals(OrderStatus.PENDING)) {
-                throw new ResponseStatusException(HttpStatus.valueOf(410), "Order most likely has already been accepted");
+                throw new NoSuchElementException("Order most likely has already been accepted");
             } else {
                 order.setStatus(OrderStatus.IN_PROGRESS);
                 orderRepo.save(order);
