@@ -56,7 +56,7 @@ public class CamundaTaskHandler implements ExternalTaskHandler {
         } catch (NoSuchElementException e) {
             LOGGER.info("New TASK {}", externalTask.getId());
             camundaRepo.save(task);
-            LOGGER.info("Process begins with RestaurantOrder ", restaurantOrder);
+            LOGGER.info("Process begins with RestaurantOrder {}", restaurantOrder);
 
             orderService.handleNewOrderCamunda(restaurantOrder);
         }
