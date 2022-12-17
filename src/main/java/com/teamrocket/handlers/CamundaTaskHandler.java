@@ -2,6 +2,7 @@ package com.teamrocket.handlers;
 
 import com.google.gson.Gson;
 import com.teamrocket.entity.CamundaOrderTask;
+import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.model.RestaurantOrder;
 import com.teamrocket.model.camunda.CamundaOrder;
 import com.teamrocket.repository.CamundaRepo;
@@ -49,14 +50,15 @@ public class CamundaTaskHandler implements ExternalTaskHandler {
                 new CamundaOrderTask(restaurantOrder.getId(), processId, taskDefinitionKey, taskId, workerId);
         try {
             CamundaOrderTask existingTask = camundaRepo.findById(restaurantOrder.getId()).get();
-            if (existingTask.getProcessId().equals(task.getProcessId())){
-//                LOGGER.info("Repeated task from Camunda process: {} with orderRequest {} - omitting...", task.getProcessId(), orderRequest);
+            if (existingTask.getProcessId().equals(task.getProcessId())) {
+
             }
 
         } catch (NoSuchElementException e) {
             camundaRepo.save(task);
-            orderService.handleNewOrderCamunda(restaurantOrder);
+            LOGGER.info("Process begins with RestaurantOrder ", restaurantOrder);
 
+            orderService.handleNewOrderCamunda(restaurantOrder);
         }
 
     }

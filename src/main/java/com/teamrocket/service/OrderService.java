@@ -76,6 +76,8 @@ public class OrderService implements IOrderService {
 
     private void sendNewOrderToRestaurant(RestaurantOrder restaurantOrder) {
         String reason = "";
+        restaurantOrder.setStatus(OrderStatus.PENDING);
+
         try {
             Order orderEntity = saveNewOrder(restaurantOrder);
             LOGGER.info("New order saved with system_order id: {} and restaurant_order_id: {}",
