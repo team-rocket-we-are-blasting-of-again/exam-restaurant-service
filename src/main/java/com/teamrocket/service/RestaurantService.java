@@ -40,7 +40,7 @@ public class RestaurantService implements IRestaurantService {
                 .build();
 
         restaurant = restaurantRepo.save(restaurant);
-        restaurant.setUserId(authClient.registerRestaurantUser(restaurant));
+        restaurant.setUserId(authClient.registerRestaurantUser(request, restaurant.getId()));
 
         return restaurantRepo.save(restaurant);
     }

@@ -1,6 +1,6 @@
 package com.teamrocket.service;
 
-import com.teamrocket.entity.Restaurant;
+import com.teamrocket.model.RegisterRestaurantRequest;
 import com.teamrocket.proto.CreateUserRequest;
 import com.teamrocket.proto.CreateUserResponse;
 import com.teamrocket.proto.Role;
@@ -21,13 +21,14 @@ public class AuthClient {
     @Autowired
     ManagedChannel managedChannel;
 
-    public int registerRestaurantUser(Restaurant restaurant) {
+    public int registerRestaurantUser(RegisterRestaurantRequest restaurant, int id) {
         LOGGER.info("gRPC Channel: {} ", managedChannel.toString());
         CreateUserResponse response = userBlockingStub.createUser(CreateUserRequest
                 .newBuilder()
                 .setRole(Role.RESTAURANT)
-                .setRoleId(restaurant.getId())
+                .setRoleId(id)
                 .setEmail(restaurant.getEmail())
+                .setPassword(restaurant.getPassword())
                 .build());
 
         LOGGER.info("New user with id {} created", response.getId());
