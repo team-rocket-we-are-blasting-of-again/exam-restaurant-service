@@ -2,15 +2,13 @@ package com.teamrocket.model;
 
 import com.teamrocket.entity.Item;
 import com.teamrocket.model.camunda.CamundaOrderItem;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 public class OrderItem {
     private int menuItemId;
     private int quantity;

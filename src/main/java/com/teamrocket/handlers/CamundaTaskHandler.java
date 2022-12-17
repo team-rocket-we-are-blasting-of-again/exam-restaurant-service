@@ -50,7 +50,7 @@ public class CamundaTaskHandler implements ExternalTaskHandler {
         try {
             CamundaOrderTask existingTask = camundaRepo.findById(restaurantOrder.getId()).get();
             if (existingTask.getProcessId().equals(task.getProcessId())){
-                LOGGER.info("Repeated task from Camunda process: {} - omitting...",task.getProcessId());
+//                LOGGER.info("Repeated task from Camunda process: {} with orderRequest {} - omitting...", task.getProcessId(), orderRequest);
             }
 
         } catch (NoSuchElementException e) {

@@ -17,6 +17,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Builder
+@ToString
 public class RestaurantOrder {
     private int id;
     private int restaurantId;

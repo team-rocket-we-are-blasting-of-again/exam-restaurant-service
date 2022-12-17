@@ -1,10 +1,7 @@
 package com.teamrocket.model.items;
 
 import com.teamrocket.entity.Item;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +10,7 @@ import java.util.HashSet;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class ItemsRequest {
     private int restaurantId;
     private Collection<Item> items = new HashSet();

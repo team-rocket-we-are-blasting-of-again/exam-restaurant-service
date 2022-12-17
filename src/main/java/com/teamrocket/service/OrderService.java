@@ -116,6 +116,7 @@ public class OrderService implements IOrderService {
             items.put(itemEntity, item.getQuantity());
         }
         Order order = new Order(restaurantOrder, items);
+        order.setStatus(OrderStatus.PENDING);
         order = orderRepo.save(order);
         LOGGER.info("SAVED ORDER WITH ID: {}", restaurantOrder.getId());
         return order;
@@ -136,8 +137,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public String acceptOrder(OrderActionRequest acceptRequest) {
-        String msg = format("Order with id %d for restaurant id %d could not be processed",
-                acceptRequest.getOrderId(), acceptRequest.getRestaurantId());
+
         LOGGER.info("accept request: {}", acceptRequest);
         try {
             Order order = orderRepo.findBySystemOrderId(acceptRequest.getOrderId());
