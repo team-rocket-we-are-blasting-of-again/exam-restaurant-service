@@ -77,6 +77,7 @@ public class RestaurantController {
 
     @PatchMapping("accept")
     public ResponseEntity acceptOrder(@RequestBody OrderActionRequest acceptRequest) {
+        LOGGER.info("Accept order request: {}", acceptRequest);
         return ResponseEntity.ok(orderService.acceptOrder(acceptRequest));
     }
 

@@ -163,8 +163,9 @@ public class OrderService implements IOrderService {
                 return "Order in Progress";
             }
         } catch (NullPointerException e) {
+            e.printStackTrace();
             LOGGER.error("No Order with systemOrderId {}", acceptRequest.getOrderId());
-            throw new NoSuchElementException("No Order present with given ID: "
+            throw new NoSuchElementException("In accept order: No Order present with given ID: "
                     + acceptRequest.getOrderId());
         }
     }
