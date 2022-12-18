@@ -1,7 +1,5 @@
 package com.teamrocket.service;
 
-import static java.lang.String.format;
-
 import com.google.gson.Gson;
 import com.teamrocket.entity.CamundaOrderTask;
 import com.teamrocket.entity.Item;
@@ -9,29 +7,12 @@ import com.teamrocket.entity.Order;
 import com.teamrocket.entity.Restaurant;
 import com.teamrocket.enums.OrderStatus;
 import com.teamrocket.enums.Topic;
-import com.teamrocket.model.OrderActionRequest;
-import com.teamrocket.model.OrderCancelled;
-import com.teamrocket.model.OrderItem;
-import com.teamrocket.model.OrderKafkaMsg;
-import com.teamrocket.model.RestaurantOrder;
-import com.teamrocket.model.camunda.DeliveryTask;
-import com.teamrocket.model.camunda.DeliveryTaskValue;
-import com.teamrocket.model.camunda.OrderAccepted;
-import com.teamrocket.model.camunda.TaskVariables;
-import com.teamrocket.model.camunda.Variables;
+import com.teamrocket.model.*;
+import com.teamrocket.model.camunda.*;
 import com.teamrocket.repository.CamundaRepo;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +27,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
+
+import static java.lang.String.format;
 
 @Service
 public class OrderService implements IOrderService {
@@ -142,7 +127,11 @@ public class OrderService implements IOrderService {
         List<Order> pendingOrders = orderRepo.
                 findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
 
-        simpMessagingTemplate.convertAndSend("/restaurant/" + restaurantId + "/new-orders", pendingOrders);
+        List<RestaurantOrder> restaurantOrders = new ArrayList<>();
+        pendingOrders.forEach(order -> {
+            restaurantOrders.add(new RestaurantOrder(order));
+        });
+        simpMessagingTemplate.convertAndSend("/restaurant/" + restaurantId + "/new-orders", restaurantOrders);
     }
 
     @Override
