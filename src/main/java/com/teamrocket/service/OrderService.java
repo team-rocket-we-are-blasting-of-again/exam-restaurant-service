@@ -23,6 +23,7 @@ import com.teamrocket.repository.CamundaRepo;
 import com.teamrocket.repository.ItemRepo;
 import com.teamrocket.repository.OrderRepo;
 import com.teamrocket.repository.RestaurantRepo;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,9 +98,7 @@ public class OrderService implements IOrderService {
             LOGGER.info("New order saved with system_order id: {} and restaurant_order_id: {}",
                     orderEntity.getSystemOrderId(), orderEntity.getId());
 
-            simpMessagingTemplate.convertAndSend("/restaurant/"
-                    + restaurantOrder.getRestaurantId()
-                    + "/new-orders", restaurantOrder);
+            sendPendingOrdersToRestaurant(restaurantOrder.getRestaurantId());
         } catch (NoSuchElementException e) {
             reason = "Could not find order items on restaurant's menu";
             LOGGER.info("Order with system_order id: {} cancelled due {}", restaurantOrder.getId(), reason);
@@ -142,12 +142,7 @@ public class OrderService implements IOrderService {
         List<Order> pendingOrders = orderRepo.
                 findAllByRestaurantIdAndStatusAndCreatedAtBefore(restaurantId, OrderStatus.PENDING, new Date());
 
-        pendingOrders.forEach(order -> {
-            RestaurantOrder restaurantOrder = new RestaurantOrder(order);
-            simpMessagingTemplate.convertAndSend("/restaurant/"
-                    + order.getRestaurantId()
-                    + "/new-orders", restaurantOrder);
-        });
+        simpMessagingTemplate.convertAndSend("/restaurant/" + restaurantId + "/new-orders", pendingOrders);
     }
 
     @Override
