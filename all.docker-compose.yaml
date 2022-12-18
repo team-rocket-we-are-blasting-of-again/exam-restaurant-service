@@ -236,7 +236,7 @@ services:
         condition: service_healthy
       gateway:
         condition: service_healthy
-    image: tobiaszimmer/exam-customer-service:kafka_fail-1.0.7-RELEASE
+    image: tobiaszimmer/exam-customer-service:kafka_fail-1.0.8-RELEASE
     restart: on-failure
     environment:
       SERVER_PORT: "8012"
